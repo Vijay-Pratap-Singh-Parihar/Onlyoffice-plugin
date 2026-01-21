@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Contract Assistant</title>
+    
+    <!-- OnlyOffice Plugin Styles -->
+    <link rel="stylesheet" href="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins.css">
+    
+    <!-- Your Custom Styles -->
+    <link rel="stylesheet" href="styles/plugin.css">
+</head>
+<body>
+    <div id="plugin-container">
+        <!-- Tab Navigation -->
+        <div class="plugin-tabs">
+            <button class="tab-button active" data-tab="ask-ai">Ask AI</button>
+            <button class="tab-button" data-tab="summary">Summary</button>
+            <button class="tab-button" data-tab="obligations">Obligations</button>
+            <button class="tab-button" data-tab="clauses">Clauses</button>
+            <button class="tab-button" data-tab="playbook">AI Playbook</button>
+            <button class="tab-button" data-tab="approval">Approval</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="plugin-content">
+            <!-- Ask AI Tab -->
+            <div id="ask-ai-tab" class="tab-content active">
+                <div class="feature-container">
+                    <h3>Ask AI</h3>
+                    <p class="feature-description">Ask questions about your document and get AI-powered answers.</p>
+                    <div id="ask-ai-chat" class="chat-container"></div>
+                    <div class="input-container">
+                        <input type="text" id="ask-ai-input" placeholder="Ask a question about your document..." />
+                        <button id="ask-ai-send">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Tab -->
+            <div id="summary-tab" class="tab-content">
+                <div class="feature-container">
+                    <h3>AI Summary</h3>
+                    <p class="feature-description">Generate a comprehensive summary of your contract document.</p>
+                    <button id="generate-summary-btn" class="action-button">Generate Summary</button>
+                    <div id="summary-loading" class="loading-container" style="display: none;">
+                        <div class="loading"></div>
+                        <span>Generating summary...</span>
+                    </div>
+                    <div id="summary-result" class="result-container"></div>
+                </div>
+            </div>
+
+            <!-- Obligations Tab -->
+            <div id="obligations-tab" class="tab-content">
+                <div class="feature-container">
+                    <h3>Obligations</h3>
+                    <p class="feature-description">Extract and identify key obligations from your contract.</p>
+                    <button id="generate-obligations-btn" class="action-button">Extract Obligations</button>
+                    <div id="obligations-loading" class="loading-container" style="display: none;">
+                        <div class="loading"></div>
+                        <span>Extracting obligations...</span>
+                    </div>
+                    <div id="obligations-result" class="result-container"></div>
+                </div>
+            </div>
+
+            <!-- Clauses Tab -->
+            <div id="clauses-tab" class="tab-content">
+                <div class="feature-container">
+                    <h3>Key Clauses</h3>
+                    <p class="feature-description">Extract and analyze important clauses from your document.</p>
+                    <button id="extract-clauses-btn" class="action-button">Extract Clauses</button>
+                    <div id="clauses-loading" class="loading-container" style="display: none;">
+                        <div class="loading"></div>
+                        <span>Extracting clauses...</span>
+                    </div>
+                    <div id="clauses-result" class="result-container"></div>
+                </div>
+            </div>
+
+            <!-- AI Playbook Tab -->
+            <div id="playbook-tab" class="tab-content">
+                <div class="feature-container">
+                    <h3>AI Playbook</h3>
+                    <p class="feature-description">Run custom AI playbooks to review your contract.</p>
+                    <button id="run-playbook-btn" class="action-button">Run Playbook</button>
+                    <div id="playbook-loading" class="loading-container" style="display: none;">
+                        <div class="loading"></div>
+                        <span>Running playbook...</span>
+                    </div>
+                    <div id="playbook-result" class="result-container"></div>
+                </div>
+            </div>
+
+            <!-- Approval Tab -->
+            <div id="approval-tab" class="tab-content">
+                <div class="feature-container">
+                    <h3>Approval Workflow</h3>
+                    <p class="feature-description">Start the approval workflow for this contract.</p>
+                    <button id="start-approval-btn" class="action-button">Start Approval</button>
+                    <div id="approval-loading" class="loading-container" style="display: none;">
+                        <div class="loading"></div>
+                        <span>Starting approval...</span>
+                    </div>
+                    <div id="approval-result" class="result-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Plugin Scripts -->
+    <script src="scripts/main.js"></script>
+    <script src="scripts/askAI.js"></script>
+    <script src="scripts/summary.js"></script>
+    <script src="scripts/obligations.js"></script>
+    <script src="scripts/clauses.js"></script>
+    <script src="scripts/playbook.js"></script>
+    <script src="scripts/approval.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "name": "AI Contract Assistant",
+  "nameLocale": {
+    "en": "AI Contract Assistant"
+  },
+  "description": "AI-powered features for contract analysis: Summary, Clauses, Obligations, AI Playbook, and Approval workflow",
+  "descriptionLocale": {
+    "en": "AI-powered features for contract analysis: Summary, Clauses, Obligations, AI Playbook, and Approval workflow"
+  },
+  "version": "1.0.0",
+  "guid": "asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}",
+  "variations": [
+    {
+      "description": "AI Contract Assistant Panel",
+      "descriptionLocale": {
+        "en": "AI Contract Assistant Panel"
+      },
+      "type": "panelRight",
+      "iconPath": "resources/img/icon.svg",
+      "iconIndex": 0,
+      "isViewer": false,
+      "EditorsSupport": ["word"],
+      "isVisual": true,
+      "isInsideMode": false,
+      "initDataType": "none",
+      "initOnSelectionChanged": false,
+      "buttons": [
+        {
+          "text": "Ask AI",
+          "textLocale": {
+            "en": "Ask AI"
+          },
+          "iconPath": "resources/img/ask-ai-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "Summary",
+          "textLocale": {
+            "en": "Summary"
+          },
+          "iconPath": "resources/img/summary-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "Obligations",
+          "textLocale": {
+            "en": "Obligations"
+          },
+          "iconPath": "resources/img/obligations-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "Clauses",
+          "textLocale": {
+            "en": "Clauses"
+          },
+          "iconPath": "resources/img/clauses-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "AI Playbook",
+          "textLocale": {
+            "en": "AI Playbook"
+          },
+          "iconPath": "resources/img/playbook-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "Approval",
+          "textLocale": {
+            "en": "Approval"
+          },
+          "iconPath": "resources/img/approval-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        }
+      ]
+    }
+  ]
+}
