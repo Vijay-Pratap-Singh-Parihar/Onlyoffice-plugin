@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main plugin icon - AI Contract Assistant -->
+  <rect width="64" height="64" rx="8" fill="#2667ff"/>
+  <path d="M32 16C28 16 24 18 22 22C18 24 16 28 16 32C16 36 18 40 22 42C24 46 28 48 32 48C36 48 40 46 42 42C46 40 48 36 48 32C48 28 46 24 42 22C40 18 36 16 32 16Z" fill="white"/>
+  <circle cx="32" cy="32" r="8" fill="#2667ff"/>
+  <path d="M28 32L30 34L36 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
