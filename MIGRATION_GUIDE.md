@@ -1,70 +1,210 @@
-# Migration Guide: Moving Code from contract-frontend to OnlyOffice Plugin
+# Migration Guide: From React Components to OnlyOffice Plugin
 
-This guide shows you how to convert your existing React components into vanilla JavaScript for the OnlyOffice plugin.
-
-## 📋 Overview
-
-Your current codebase uses:
-- **React** components (`AiChat.js`, `AiPlaybook.js`, etc.)
-- **Redux** for state management
-- **React Router** for navigation
-- **Modern React hooks** (useState, useEffect, etc.)
-
-The plugin needs:
-- **Vanilla JavaScript** (no React)
-- **Plain HTML/CSS**
-- **Direct DOM manipulation**
-- **Event listeners** instead of React hooks
+This guide helps you migrate existing React-based contract analysis features to the OnlyOffice plugin architecture.
 
 ---
 
-## 🔄 Migration Strategy
+## 📋 Overview
 
-### Step 1: Identify Core Logic
+### What You're Migrating From
 
-For each feature, identify:
-1. **API calls** - What endpoints are called?
-2. **Data processing** - How is data transformed?
-3. **UI updates** - What changes on screen?
-4. **User interactions** - What buttons/clicks trigger actions?
+- **React Components** with hooks (useState, useEffect)
+- **Redux** for state management
+- **React Router** for navigation
+- **Modern React patterns** (functional components)
 
-### Step 2: Extract Business Logic
+### What You're Migrating To
 
-Separate the business logic from React-specific code:
+- **Vanilla JavaScript** (no frameworks)
+- **Plain HTML/CSS**
+- **Direct DOM manipulation**
+- **Event listeners** instead of hooks
+- **OnlyOffice Plugin API** for editor integration
 
-**Before (React):**
+---
+
+## 🔄 Core Migration Patterns
+
+### Pattern 1: React State → JavaScript Variables
+
+**React Code:**
 ```javascript
-// From AiChat.js
-const [loader, setLoader] = useState(false);
-const [summaryData, setSummaryData] = useState('');
+const [data, setData] = useState(null);
+const [loading, setLoading] = useState(false);
 
-const handleGenerate = async () => {
-  setLoader(true);
-  const response = await fetch(url);
-  const data = await response.json();
-  setSummaryData(data.summary);
-  setLoader(false);
+const handleClick = () => {
+    setLoading(true);
+    fetchData().then(result => {
+        setData(result);
+        setLoading(false);
+    });
 };
 ```
 
-**After (Plugin):**
+**Plugin Code:**
 ```javascript
-// In summary.js
-let isLoading = false;
-let summaryData = '';
+let data = null;
+let loading = false;
 
-async function handleGenerateSummary() {
-  isLoading = true;
-  updateLoadingUI(true);
-  
-  const response = await fetch(url);
-  const data = await response.json();
-  summaryData = data.summary;
-  
-  updateSummaryUI(data.summary);
-  isLoading = false;
-  updateLoadingUI(false);
+function handleClick() {
+    loading = true;
+    updateLoadingUI(true);
+    
+    fetchData().then(result => {
+        data = result;
+        updateDataUI(result);
+        loading = false;
+        updateLoadingUI(false);
+    });
 }
+
+function updateLoadingUI(isLoading) {
+    const btn = document.getElementById('action-btn');
+    btn.disabled = isLoading;
+    const loader = document.getElementById('loader');
+    loader.style.display = isLoading ? 'block' : 'none';
+}
+```
+
+### Pattern 2: React useEffect → DOM Ready Event
+
+**React Code:**
+```javascript
+useEffect(() => {
+    fetchInitialData();
+}, []);
+
+useEffect(() => {
+    if (contractId) {
+        loadContractData();
+    }
+}, [contractId]);
+```
+
+**Plugin Code:**
+```javascript
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFeature);
+} else {
+    initFeature();
+}
+
+function initFeature() {
+    fetchInitialData();
+    
+    // Watch for contractId changes
+    const pluginData = window.getPluginData();
+    if (pluginData.contractId) {
+        loadContractData();
+    }
+}
+```
+
+### Pattern 3: React JSX → DOM Creation
+
+**React Code:**
+```javascript
+return (
+    <div className="container">
+        <h3>{title}</h3>
+        <button onClick={handleClick}>Click Me</button>
+        {loading && <div className="loader">Loading...</div>}
+        {data && <div className="result">{data}</div>}
+    </div>
+);
+```
+
+**Plugin Code:**
+```javascript
+// HTML already exists in index.html
+// Just update content dynamically
+
+function updateUI(title, data, isLoading) {
+    const container = document.getElementById('feature-container');
+    
+    // Update title
+    const titleEl = container.querySelector('h3');
+    titleEl.textContent = title;
+    
+    // Update loading state
+    const loader = document.getElementById('loader');
+    loader.style.display = isLoading ? 'flex' : 'none';
+    
+    // Update result
+    const resultEl = document.getElementById('result');
+    if (data) {
+        resultEl.innerHTML = formatData(data);
+        resultEl.style.display = 'block';
+    } else {
+        resultEl.style.display = 'none';
+    }
+}
+```
+
+### Pattern 4: React Redux → Window/Module State
+
+**React Code:**
+```javascript
+const summaryData = useSelector(state => state.aiChatReducer.summaryData);
+dispatch(setSummaryData(newData));
+```
+
+**Plugin Code:**
+```javascript
+// Store in window or module scope
+window.pluginState = {
+    summaryData: null,
+    obligations: null,
+    // ... other state
+};
+
+// Update state
+window.pluginState.summaryData = newData;
+updateSummaryUI(newData);
+
+// OR use module-level variables
+let summaryData = null;
+
+function updateSummary(data) {
+    summaryData = data;
+    updateSummaryUI(data);
+}
+```
+
+### Pattern 5: React API Calls → Fetch with Plugin Helpers
+
+**React Code:**
+```javascript
+const constants = require('../../../utility/constants/constant');
+const accessToken = useSelector(state => state.authReducer.accessToken);
+const contractId = props.contractId;
+
+const url = `${constants.BASE_URL}${constants.GENERATE_SUMMARY_ONLYOFFICE}?contractId=${contractId}`;
+
+fetch(url, {
+    headers: {
+        'x-auth-token': accessToken
+    }
+});
+```
+
+**Plugin Code:**
+```javascript
+const pluginData = window.getPluginData();
+const backendUrl = window.getBackendUrl();
+const accessToken = window.getAccessToken();
+const contractId = window.getContractId();
+
+const url = `${backendUrl}/ai-assistant/onlyoffice/generate-summary?contractId=${contractId}&userId=${pluginData.userId}&organizationId=${pluginData.organizationId}`;
+
+fetch(url, {
+    headers: {
+        'x-auth-token': accessToken,
+        'Content-Type': 'application/json',
+        'accept-language': 'en-US,en;q=0.9'
+    }
+});
 ```
 
 ---
@@ -73,306 +213,227 @@ async function handleGenerateSummary() {
 
 ### 1. Ask AI / Chat Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiChat/AiChat.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiChat/AiChat.js`
 
-**Key Components to Migrate:**
-- Chat input handling
-- Message display
-- API calls to `/ai-assistant/ask-question`
-- Streaming response handling (if applicable)
+**Key Changes:**
+- Replace React state with module variables
+- Convert JSX message rendering to DOM manipulation
+- Replace Redux actions with direct API calls
 
-**Migration Steps:**
+**Migration Example:**
 
-1. **Find the API endpoint:**
-   ```javascript
-   // Original
-   const url = `${constants.BASE_URL}${constants.ASK_QUESTION}`;
-   ```
+```javascript
+// React: useState for messages
+const [messages, setMessages] = useState([]);
 
-2. **Convert to plugin format:**
-   ```javascript
-   // Plugin version
-   const backendUrl = window.getBackendUrl();
-   const url = `${backendUrl}/ai-assistant/ask-question`;
-   ```
+// Plugin: Module variable
+let messages = [];
 
-3. **Replace React state with variables:**
-   ```javascript
-   // Original: const [messages, setMessages] = useState([]);
-   // Plugin: 
-   let messages = [];
-   ```
+// React: JSX rendering
+messages.map(msg => <div className="message">{msg.text}</div>)
 
-4. **Replace JSX with DOM manipulation:**
-   ```javascript
-   // Original JSX
-   // <div className="chat-message">{message}</div>
-   
-   // Plugin version
-   const messageDiv = document.createElement('div');
-   messageDiv.className = 'chat-message';
-   messageDiv.textContent = message;
-   container.appendChild(messageDiv);
-   ```
+// Plugin: DOM manipulation
+function addMessage(text, sender) {
+    const container = document.getElementById('chat-container');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-message ${sender}`;
+    msgDiv.textContent = text;
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+}
+```
 
-**Already Done:** See `scripts/askAI.js` for the migrated version.
+**See:** `scripts/askAI.js` for complete implementation
 
 ---
 
 ### 2. Summary Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiChat/Summary.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiChat/Summary.js`
 
-**Key Components:**
-- Generate button click handler
-- Streaming response handling
-- Summary display formatting
+**Key Changes:**
+- Streaming response handling (similar logic, different UI updates)
+- Replace Redux dispatch with direct UI updates
+- Convert React loading states to DOM manipulation
 
 **Migration Example:**
 
-**Original React Code:**
 ```javascript
-const handleRegenerate = async () => {
-  setRegenerateLoader(true);
-  const url = `${constants.BASE_URL}${constants.GENERATE_SUMMARY_ONLYOFFICE}?contractId=${id}...`;
-  const res = await fetch(url, {
-    headers: { 'x-auth-token': accessToken }
-  });
-  
-  if (res.ok && res.body) {
+// React: Streaming with Redux
+if (res.ok && res.body) {
     const reader = res.body.getReader();
-    // ... streaming logic
-    dispatch(setSummaryData(accumulated));
-  }
-};
-```
+    const decoder = new TextDecoder();
+    let accumulated = '';
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        dispatch(setSummaryData(accumulated));  // React update
+    }
+}
 
-**Plugin Version:**
-```javascript
-async function handleGenerateSummary() {
-  const generateBtn = document.getElementById('generate-summary-btn');
-  generateBtn.disabled = true;
-  
-  const pluginData = window.getPluginData();
-  const url = `${window.getBackendUrl()}/ai-assistant/onlyoffice/generate-summary?contractId=${pluginData.contractId}...`;
-  
-  const res = await fetch(url, {
-    headers: { 'x-auth-token': window.getAccessToken() }
-  });
-  
-  if (res.ok && res.body) {
+// Plugin: Streaming with direct UI update
+if (res.ok && res.body) {
     const reader = res.body.getReader();
-    // ... same streaming logic
-    updateSummaryUI(accumulated);
-  }
-  
-  generateBtn.disabled = false;
+    const decoder = new TextDecoder();
+    let accumulated = '';
+    const resultEl = document.getElementById('summary-result');
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        resultEl.innerHTML = formatSummary(accumulated);  // Direct DOM update
+    }
 }
 ```
 
-**Already Done:** See `scripts/summary.js` for the migrated version.
+**See:** `scripts/summary.js` for complete implementation
 
 ---
 
 ### 3. Obligations Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiObligation.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiObligation.js`
 
-**Key Components:**
-- Obligation generation API call
-- HTML rendering of obligations
-- Copy/regenerate buttons
+**Key Changes:**
+- HTML rendering (can use innerHTML directly)
+- Replace Redux state with local variables
+- Convert button handlers to event listeners
 
 **Migration Notes:**
-- The original uses Redux for state - replace with local variables
-- HTML rendering can stay the same (just use `innerHTML` instead of JSX)
-- Button handlers convert from React onClick to addEventListener
+- Obligations often return HTML - can use `innerHTML` directly
+- Copy functionality can use Clipboard API
+- Regenerate follows same pattern as generate
 
-**Already Done:** See `scripts/obligations.js` for the migrated version.
+**See:** `scripts/obligations.js` for complete implementation
 
 ---
 
 ### 4. Clauses Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiClause.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiClause.js`
 
-**Key Components:**
-- Clause extraction API call
-- Streaming response handling
-- Clause display formatting
+**Key Changes:**
+- Similar to Summary (streaming response)
+- Formatting can be HTML strings
+- Display updates via innerHTML
 
-**Migration Notes:**
-- Similar to Summary - streaming response handling
-- Display formatting can be HTML strings
-
-**Already Done:** See `scripts/clauses.js` for the migrated version.
+**See:** `scripts/clauses.js` for complete implementation
 
 ---
 
 ### 5. AI Playbook Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiPlaybook.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/AiPlaybook.js`
 
-**Key Components:**
-- Playbook list fetching
-- Playbook execution
-- Results display with badges/status
-- Filter functionality
-
-**Migration Complexity:** ⚠️ **More Complex**
-
-This is the most complex feature because it has:
-- Multiple views (list, detail, create)
+**This is the most complex feature** because it includes:
+- List view with filters
+- Detail view
+- Create/edit views
 - Complex state management
-- Filtering logic
-- Streaming responses
 
 **Migration Strategy:**
 
-1. **Simplify the UI** - Start with a basic version:
-   - Show playbook list
-   - Run selected playbook
-   - Display results
+Start simple, then enhance:
 
-2. **Gradually add features:**
-   - Add filtering
-   - Add detail view
-   - Add create functionality
+1. **Phase 1: Basic execution**
+   - Playbook selection dropdown
+   - Run button
+   - Results display
 
-3. **Convert state management:**
-   ```javascript
-   // Original: Multiple useState hooks
-   const [playbooks, setPlaybooks] = useState([]);
-   const [selectedPlaybook, setSelectedPlaybook] = useState(null);
-   
-   // Plugin: Use objects
-   const playbookState = {
-     playbooks: [],
-     selectedPlaybook: null,
-     filters: { status: 'all' }
-   };
-   ```
+2. **Phase 2: Add list view**
+   - Fetch playbook list
+   - Display in table/list
+   - Add selection
 
-**Partially Done:** See `scripts/playbook.js` for a basic version. You may need to enhance it based on your specific requirements.
+3. **Phase 3: Add filters**
+   - Filter by status
+   - Filter by type
+   - Search functionality
+
+4. **Phase 4: Add detail view**
+   - Show playbook details
+   - Run from detail view
+   - Show results breakdown
+
+**See:** `scripts/playbook.js` for basic implementation (Phase 1)
 
 ---
 
 ### 6. Approval Feature
 
-**Original Location:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/ClauseApproval/ClauseApproval.js`
+**Original:** `src/views/pages/external_user/OnlyOfficePage/SidePanel/ClauseApproval/ClauseApproval.js`
 
-**Key Components:**
-- Approval workflow initiation
-- Approval status display
-- Approval matrix
+**Key Changes:**
+- Workflow initiation
+- Status display
+- Approval matrix (can be simplified initially)
 
 **Migration Notes:**
-- Start with basic workflow initiation
-- Add status display later
-- Approval matrix can be a separate view
+- Start with basic workflow start
+- Add status tracking later
+- Approval matrix can be a separate simplified view
 
-**Already Done:** See `scripts/approval.js` for the migrated version.
-
----
-
-## 🔧 Common Patterns
-
-### Pattern 1: React State → Vanilla JS Variables
-
-**Before:**
-```javascript
-const [data, setData] = useState(null);
-setData(newData);
-```
-
-**After:**
-```javascript
-let data = null;
-data = newData;
-updateUI(); // Manually update UI
-```
-
-### Pattern 2: React useEffect → Event Listeners
-
-**Before:**
-```javascript
-useEffect(() => {
-  fetchData();
-}, [dependency]);
-```
-
-**After:**
-```javascript
-document.addEventListener('DOMContentLoaded', function() {
-  fetchData();
-});
-
-// Or for button clicks
-button.addEventListener('click', fetchData);
-```
-
-### Pattern 3: React JSX → DOM Manipulation
-
-**Before:**
-```javascript
-return (
-  <div className="container">
-    <button onClick={handleClick}>Click</button>
-    <div>{data}</div>
-  </div>
-);
-```
-
-**After:**
-```javascript
-const container = document.createElement('div');
-container.className = 'container';
-
-const button = document.createElement('button');
-button.textContent = 'Click';
-button.addEventListener('click', handleClick);
-container.appendChild(button);
-
-const dataDiv = document.createElement('div');
-dataDiv.textContent = data;
-container.appendChild(dataDiv);
-```
-
-### Pattern 4: React Redux → Local State
-
-**Before:**
-```javascript
-const data = useSelector(state => state.aiChatReducer.summaryData);
-dispatch(setSummaryData(newData));
-```
-
-**After:**
-```javascript
-// Store in window or module-level variable
-window.pluginState = {
-  summaryData: null
-};
-
-// Update
-window.pluginState.summaryData = newData;
-updateUI();
-```
+**See:** `scripts/approval.js` for complete implementation
 
 ---
 
-## 📦 API Endpoints Reference
+## 🔧 Helper Functions
 
-Here are the API endpoints used in your codebase that you'll need in the plugin:
+### Create Reusable Helpers
 
-| Feature | Endpoint | Method | Notes |
-|---------|----------|--------|-------|
-| Ask AI | `/ai-assistant/ask-question` | POST | Requires question + document content |
-| Summary | `/ai-assistant/onlyoffice/generate-summary` | GET | Streaming response |
-| Clauses | `/ai-assistant/onlyoffice/generate-AiClause` | GET | Streaming response |
-| Obligations | `/ai-assistant/generate-obligation` | POST | Returns HTML |
-| Playbook List | `/ai-assistant/global-playbooks` | GET | Get available playbooks |
-| Run Playbook | `/ai-assistant/run-playbook` | POST | Streaming response |
-| Start Approval | `/clause-approval/start-clause-approval-workflow` | POST | Initiate workflow |
+Extract common patterns into helper functions:
+
+```javascript
+// API call helper
+async function callBackendAPI(endpoint, data, method = 'GET') {
+    const backendUrl = window.getBackendUrl();
+    const accessToken = window.getAccessToken();
+    
+    const options = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': accessToken,
+            'accept-language': 'en-US,en;q=0.9'
+        }
+    };
+    
+    if (method === 'POST' && data) {
+        options.body = JSON.stringify(data);
+    }
+    
+    const response = await fetch(`${backendUrl}${endpoint}`, options);
+    
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
+// UI update helper
+function updateResultContainer(containerId, content, isError = false) {
+    const container = document.getElementById(containerId);
+    if (isError) {
+        container.innerHTML = `<div class="error-message">${content}</div>`;
+    } else {
+        container.innerHTML = content;
+    }
+    container.style.display = 'block';
+}
+
+// Loading state helper
+function setLoadingState(buttonId, loadingContainerId, isLoading) {
+    const btn = document.getElementById(buttonId);
+    const loader = document.getElementById(loadingContainerId);
+    
+    if (btn) btn.disabled = isLoading;
+    if (loader) loader.style.display = isLoading ? 'flex' : 'none';
+}
+```
 
 ---
 
@@ -380,36 +441,81 @@ Here are the API endpoints used in your codebase that you'll need in the plugin:
 
 For each feature, ensure:
 
-- [ ] API endpoints are correct
-- [ ] Authentication tokens are passed
+- [ ] API endpoints are correct and match backend
+- [ ] Authentication tokens are passed correctly
 - [ ] Error handling is implemented
-- [ ] Loading states are shown
-- [ ] UI updates correctly
+- [ ] Loading states are shown/hidden
+- [ ] UI updates correctly after API calls
 - [ ] Streaming responses work (if applicable)
-- [ ] User feedback is provided
-- [ ] Code is tested
+- [ ] User feedback is provided for errors
+- [ ] Code is tested in OnlyOffice editor
+- [ ] Browser console shows no errors
 
 ---
 
-## 🚀 Next Steps After Migration
+## 🚀 Post-Migration Steps
 
-1. **Test each feature** individually
-2. **Handle edge cases** (empty responses, errors, etc.)
-3. **Improve UI/UX** based on testing
-4. **Add loading animations**
-5. **Add error messages**
-6. **Optimize performance**
+### 1. Testing
+
+Test each feature:
+- ✅ Basic functionality works
+- ✅ API calls are correct
+- ✅ Error handling works
+- ✅ Loading states appear
+- ✅ UI updates correctly
+
+### 2. Edge Cases
+
+Handle edge cases:
+- Empty responses
+- Network errors
+- Invalid tokens
+- Missing data
+- Large responses
+
+### 3. Performance
+
+Optimize:
+- Minimize DOM operations
+- Cache API responses if appropriate
+- Debounce user inputs
+- Lazy load features if needed
+
+### 4. User Experience
+
+Enhance UX:
+- Better error messages
+- Loading animations
+- Success feedback
+- Helpful tooltips
+- Keyboard shortcuts
 
 ---
 
-## 💡 Tips
+## 💡 Tips & Best Practices
 
-1. **Start Simple** - Get basic functionality working first
-2. **Test Frequently** - Test after each feature migration
-3. **Keep It Simple** - Don't overcomplicate the plugin code
-4. **Reuse Logic** - Extract common functions (API calls, UI updates)
-5. **Document Changes** - Note what you changed and why
+1. **Start Simple:** Get basic functionality working first
+2. **Test Frequently:** Test after each feature migration
+3. **Keep Code Clean:** Extract common patterns into helpers
+4. **Document Changes:** Comment what you changed and why
+5. **Match Original Behavior:** Try to replicate original functionality
+6. **Use Browser DevTools:** Console and Network tabs are your friends
+7. **Version Control:** Commit frequently during migration
 
 ---
 
-**Good luck with your migration! 🎉**
+## 📚 Reference: API Endpoints
+
+| Feature | Endpoint | Method | Parameters |
+|---------|----------|--------|------------|
+| Ask AI | `/ai-assistant/ask-question` | POST | `question`, `documentContent`, `contractId`, etc. |
+| Summary | `/ai-assistant/onlyoffice/generate-summary` | GET | `contractId`, `userId`, `organizationId` |
+| Clauses | `/ai-assistant/onlyoffice/generate-AiClause` | GET | `contractId`, `userId`, `organizationId` |
+| Obligations | `/ai-assistant/generate-obligation` | POST | `contractId`, `userId`, etc. |
+| Playbook List | `/ai-assistant/global-playbooks` | GET | `contractId`, `userId`, etc. |
+| Run Playbook | `/ai-assistant/run-playbook` | POST | `playbookId`, `contractId`, etc. |
+| Start Approval | `/clause-approval/start-clause-approval-workflow` | POST | `contractId`, `userId`, etc. |
+
+---
+
+**Last Updated:** 2024

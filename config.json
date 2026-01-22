@@ -1,7 +1,7 @@
 {
-  "name": "AI Contract Assistant",
+  "name": "Legistify AI",
   "nameLocale": {
-    "en": "AI Contract Assistant"
+    "en": "Legistify AI"
   },
   "description": "AI-powered features for contract analysis: Summary, Clauses, Obligations, AI Playbook, and Approval workflow",
   "descriptionLocale": {
@@ -9,19 +9,28 @@
   },
   "version": "1.0.0",
   "guid": "asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}",
+  "minVersion": "8.2.0",
+  "group": {
+    "name": "Legistify AI",
+    "nameLocale": {
+      "en": "Legistify AI"
+    },
+    "rank": 1
+  },
   "variations": [
     {
-      "description": "AI Contract Assistant Panel",
+      "description": "Legistify AI Panel",
       "descriptionLocale": {
-        "en": "AI Contract Assistant Panel"
+        "en": "Legistify AI Panel"
       },
-      "type": "panelRight",
-      "iconPath": "resources/img/icon.svg",
-      "iconIndex": 0,
+      "url": "index.html",
+      "icons": [ "resources/img/icon.svg", "resources/img/legistify-logo.svg" ],
       "isViewer": false,
       "EditorsSupport": ["word"],
       "isVisual": true,
+      "isModal": false,
       "isInsideMode": false,
+      "type": "panel",
       "initDataType": "none",
       "initOnSelectionChanged": false,
       "buttons": [
@@ -50,18 +59,6 @@
           "initOnSelectionChanged": false
         },
         {
-          "text": "Obligations",
-          "textLocale": {
-            "en": "Obligations"
-          },
-          "iconPath": "resources/img/obligations-icon.svg",
-          "iconIndex": 0,
-          "isViewer": false,
-          "EditorsSupport": ["word"],
-          "initDataType": "none",
-          "initOnSelectionChanged": false
-        },
-        {
           "text": "Clauses",
           "textLocale": {
             "en": "Clauses"
@@ -74,11 +71,35 @@
           "initOnSelectionChanged": false
         },
         {
+          "text": "Obligations",
+          "textLocale": {
+            "en": "Obligations"
+          },
+          "iconPath": "resources/img/obligations-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
           "text": "AI Playbook",
           "textLocale": {
             "en": "AI Playbook"
           },
           "iconPath": "resources/img/playbook-icon.svg",
+          "iconIndex": 0,
+          "isViewer": false,
+          "EditorsSupport": ["word"],
+          "initDataType": "none",
+          "initOnSelectionChanged": false
+        },
+        {
+          "text": "Library",
+          "textLocale": {
+            "en": "Library"
+          },
+          "iconPath": "resources/img/library-icon.svg",
           "iconIndex": 0,
           "isViewer": false,
           "EditorsSupport": ["word"],
@@ -99,5 +120,6 @@
         }
       ]
     }
-  ]
+  ],
+  "onlyofficeScheme": true
 }

@@ -9,6 +9,9 @@
         initAskAI();
     }
 
+    let chatHistory = [];
+    let isLoading = false;
+
     function initAskAI() {
         const sendButton = document.getElementById('ask-ai-send');
         const inputField = document.getElementById('ask-ai-input');
@@ -23,11 +26,60 @@
                 }
             });
         }
+        
+        // Load chat history
+        loadChatHistory();
+    }
+
+    async function loadChatHistory() {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        const chatContainer = document.getElementById('ask-ai-chat');
+        
+        if (!pluginData.contractId || !accessToken || !chatContainer) return;
+        
+        try {
+            // Build query params
+            const params = new URLSearchParams({
+                contractId: pluginData.contractId,
+                userId: pluginData.userId || '',
+                organizationId: pluginData.organizationId || ''
+            });
+            
+            const url = `${backendUrl}/ai-assistant/chat-history?${params.toString()}`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status && data.data && Array.isArray(data.data)) {
+                    chatHistory = data.data;
+                    
+                    // Render chat history
+                    chatContainer.innerHTML = '';
+                    chatHistory.forEach(msg => {
+                        addMessageToChat(chatContainer, msg.question || msg.query || '', 'user');
+                        addMessageToChat(chatContainer, msg.answer || msg.response || '', 'assistant');
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+            // Silent fail - user can still chat
+        }
     }
 
     async function handleAskAI() {
+        if (isLoading) return;
+        
         const inputField = document.getElementById('ask-ai-input');
         const chatContainer = document.getElementById('ask-ai-chat');
+        const sendButton = document.getElementById('ask-ai-send');
         const question = inputField.value.trim();
 
         if (!question) {
@@ -38,37 +90,78 @@
         // Show user question in chat
         addMessageToChat(chatContainer, question, 'user');
 
-        // Clear input
+        // Clear input and disable
         inputField.value = '';
         inputField.disabled = true;
+        if (sendButton) sendButton.disabled = true;
+        isLoading = true;
 
-        // Show loading
+        // Show loading message
         const loadingId = addMessageToChat(chatContainer, 'Thinking...', 'assistant', true);
 
         try {
-            // Get document content
-            const documentContent = await window.getDocumentContent();
             const pluginData = window.getPluginData();
+            const backendUrl = window.getBackendUrl();
+            const accessToken = window.getAccessToken();
 
-            // Call your backend API
+            // Sync document first (as per MS Editor implementation)
+            try {
+                await syncDocument(pluginData, backendUrl, accessToken);
+            } catch (syncError) {
+                console.warn('Document sync failed, continuing:', syncError);
+            }
+
+            // Call backend API
             const response = await callBackendAPI('/ai-assistant/ask-question', {
                 question: question,
-                documentContent: documentContent,
                 contractId: pluginData.contractId,
                 userId: pluginData.userId,
                 organizationId: pluginData.organizationId
             });
 
             // Update loading message with actual response
-            updateMessage(chatContainer, loadingId, response.answer || response.data || 'No answer received', 'assistant');
+            const answer = response.answer || response.data || response.response || 'No answer received';
+            updateMessage(chatContainer, loadingId, answer, 'assistant');
+            
+            // Add to chat history
+            chatHistory.push({
+                question: question,
+                answer: answer,
+                timestamp: new Date().toISOString()
+            });
         } catch (error) {
             console.error('Ask AI Error:', error);
-            updateMessage(chatContainer, loadingId, 'Sorry, an error occurred. Please try again.', 'assistant');
+            const errorMsg = error.message || 'Sorry, an error occurred. Please try again.';
+            updateMessage(chatContainer, loadingId, errorMsg, 'assistant');
             showError('Failed to get AI response. Please check your connection and try again.');
         } finally {
             inputField.disabled = false;
+            if (sendButton) sendButton.disabled = false;
             inputField.focus();
+            isLoading = false;
         }
+    }
+
+    async function syncDocument(pluginData, backendUrl, accessToken) {
+        // Sync document before asking questions (as per MS Editor)
+        const response = await fetch(`${backendUrl}/ai-assistant/onlyoffice/sync-document`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': accessToken
+            },
+            body: JSON.stringify({
+                contractId: pluginData.contractId,
+                userId: pluginData.userId,
+                organizationId: pluginData.organizationId
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Document sync failed');
+        }
+        
+        return await response.json();
     }
 
     function addMessageToChat(container, message, sender, isLoading = false) {
@@ -122,8 +215,16 @@
     }
 
     function showError(message) {
-        // Simple error display - you can enhance this
-        alert(message);
+        // Show toast notification instead of alert
+        const toast = document.createElement('div');
+        toast.className = 'toast-message error';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
 })(window);

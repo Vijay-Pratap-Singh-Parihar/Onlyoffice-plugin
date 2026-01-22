@@ -2,34 +2,109 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Contract Assistant</title>
-    
-    <!-- OnlyOffice Plugin Styles -->
-    <link rel="stylesheet" href="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins.css">
+    <script type="text/javascript" src="../v1/plugins.js"></script>
+    <script type="text/javascript" src="../v1/plugins-ui.js"></script>
+    <link rel="stylesheet" href="../v1/plugins.css">
     
     <!-- Your Custom Styles -->
     <link rel="stylesheet" href="styles/plugin.css">
 </head>
 <body>
+    <!-- Resize Handle -->
+    <div id="resize-handle" class="resize-handle"></div>
     <div id="plugin-container">
-        <!-- Tab Navigation -->
-        <div class="plugin-tabs">
-            <button class="tab-button active" data-tab="ask-ai">Ask AI</button>
-            <button class="tab-button" data-tab="summary">Summary</button>
-            <button class="tab-button" data-tab="obligations">Obligations</button>
-            <button class="tab-button" data-tab="clauses">Clauses</button>
-            <button class="tab-button" data-tab="playbook">AI Playbook</button>
-            <button class="tab-button" data-tab="approval">Approval</button>
+        <!-- Main Landing View - Card Buttons -->
+        <div id="main-landing-view" class="landing-view">
+            <div class="landing-header">
+                <div class="header-title">
+                    <svg class="sparkle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L13.09 8.26L19 9L13.09 9.74L12 16L10.91 9.74L5 9L10.91 8.26L12 2Z" fill="currentColor"/>
+                        <path d="M19 2L19.59 5.13L22 5.5L19.59 5.87L19 9L18.41 5.87L16 5.5L18.41 5.13L19 2Z" fill="currentColor"/>
+                        <path d="M5 2L5.59 5.13L8 5.5L5.59 5.87L5 9L4.41 5.87L2 5.5L4.41 5.13L5 2Z" fill="currentColor"/>
+                    </svg>
+                    <h1 class="landing-title">Legistify AI</h1>
+                </div>
+                <button class="panel-close-button" onclick="closePluginPanel()" title="Close Panel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="landing-content">
+                <div class="feature-card" data-feature="summary">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 6v6l4 2"></path>
+                        </svg>
+                    </div>
+                    <div class="card-text">Summarise Your Draft</div>
+                </div>
+                
+                <div class="feature-card" data-feature="clauses">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="card-text">Extract Key Clauses</div>
+                </div>
+                
+                <div class="feature-card" data-feature="obligations">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                            <line x1="15" y1="3" x2="15" y2="21"></line>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="3" y1="15" x2="21" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="card-text">Identify Main Obligations</div>
+                </div>
+                
+                <div class="feature-card" data-feature="playbook">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                            <line x1="9" y1="8" x2="9" y2="12"></line>
+                            <line x1="13" y1="8" x2="13" y2="12"></line>
+                            <line x1="9" y1="12" x2="13" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="card-text">Run AI Playbook Review</div>
+                </div>
+                
+                <div class="feature-card" data-feature="ask-ai">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="card-text">Chat With Your Draft</div>
+                </div>
+            </div>
         </div>
 
-        <!-- Tab Content -->
-        <div class="plugin-content">
-            <!-- Ask AI Tab -->
-            <div id="ask-ai-tab" class="tab-content active">
-                <div class="feature-container">
-                    <h3>Ask AI</h3>
-                    <p class="feature-description">Ask questions about your document and get AI-powered answers.</p>
+        <!-- Feature Views (Hidden by default) -->
+        <div id="feature-views" style="display: none;">
+            <!-- Ask AI Feature -->
+            <div id="ask-ai-view" class="feature-view">
+                <div class="feature-header">
+                    <button class="back-button" onclick="showLandingView()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 class="feature-title">Chat With Your Draft</h2>
+                </div>
+                <div class="feature-content">
                     <div id="ask-ai-chat" class="chat-container"></div>
                     <div class="input-container">
                         <input type="text" id="ask-ai-input" placeholder="Ask a question about your document..." />
@@ -38,53 +113,116 @@
                 </div>
             </div>
 
-            <!-- Summary Tab -->
-            <div id="summary-tab" class="tab-content">
-                <div class="feature-container">
-                    <h3>AI Summary</h3>
-                    <p class="feature-description">Generate a comprehensive summary of your contract document.</p>
-                    <button id="generate-summary-btn" class="action-button">Generate Summary</button>
-                    <div id="summary-loading" class="loading-container" style="display: none;">
-                        <div class="loading"></div>
-                        <span>Generating summary...</span>
+            <!-- Summary Feature -->
+            <div id="summary-view" class="feature-view">
+                <div class="feature-header">
+                    <button class="back-button" onclick="showLandingView()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 class="feature-title">Summary</h2>
+                    <div class="response-action-box" id="summary-action-box" style="display: none;">
+                        <div class="summary-button" onclick="regenerateSummary()" title="Regenerate Summary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                        </div>
+                        <div class="summary-button" onclick="copySummary()" title="Copy Summary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div id="summary-result" class="result-container"></div>
+                </div>
+                <div class="feature-content">
+                    <div id="summary-result" class="summary-text-card"></div>
+                    <div id="summary-generate-container" style="display: flex; justify-content: center; padding: 20px;">
+                        <button id="generate-summary-btn" class="action-button">Generate Summary</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Obligations Tab -->
-            <div id="obligations-tab" class="tab-content">
-                <div class="feature-container">
-                    <h3>Obligations</h3>
-                    <p class="feature-description">Extract and identify key obligations from your contract.</p>
-                    <button id="generate-obligations-btn" class="action-button">Extract Obligations</button>
-                    <div id="obligations-loading" class="loading-container" style="display: none;">
-                        <div class="loading"></div>
-                        <span>Extracting obligations...</span>
+            <!-- Clauses Feature -->
+            <div id="clauses-view" class="feature-view">
+                <div class="feature-header">
+                    <button class="back-button" onclick="showLandingView()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 class="feature-title">Clauses</h2>
+                    <div class="response-action-box" id="clauses-action-box" style="display: none;">
+                        <div class="summary-button" onclick="regenerateClauses()" title="Regenerate Clauses">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                        </div>
+                        <div class="summary-button" onclick="copyClauses()" title="Copy Clauses">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div id="obligations-result" class="result-container"></div>
+                </div>
+                <div class="feature-content">
+                    <div id="clauses-result" class="summary-text-card"></div>
+                    <div id="clauses-generate-container" style="display: flex; justify-content: center; padding: 20px;">
+                        <button id="extract-clauses-btn" class="action-button">Extract Clauses</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Clauses Tab -->
-            <div id="clauses-tab" class="tab-content">
-                <div class="feature-container">
-                    <h3>Key Clauses</h3>
-                    <p class="feature-description">Extract and analyze important clauses from your document.</p>
-                    <button id="extract-clauses-btn" class="action-button">Extract Clauses</button>
-                    <div id="clauses-loading" class="loading-container" style="display: none;">
-                        <div class="loading"></div>
-                        <span>Extracting clauses...</span>
+            <!-- Obligations Feature -->
+            <div id="obligations-view" class="feature-view">
+                <div class="feature-header">
+                    <button class="back-button" onclick="showLandingView()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 class="feature-title">Obligations</h2>
+                    <div class="response-action-box" id="obligations-action-box" style="display: none;">
+                        <div class="summary-button" onclick="regenerateObligations()" title="Regenerate Obligations">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                        </div>
+                        <div class="summary-button" onclick="copyObligations()" title="Copy Obligations">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </div>
                     </div>
-                    <div id="clauses-result" class="result-container"></div>
+                </div>
+                <div class="feature-content">
+                    <div id="obligations-result" class="summary-text-card"></div>
+                    <div id="obligations-generate-container" style="display: flex; justify-content: center; padding: 20px;">
+                        <button id="generate-obligations-btn" class="action-button">Extract Obligations</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- AI Playbook Tab -->
-            <div id="playbook-tab" class="tab-content">
-                <div class="feature-container">
-                    <h3>AI Playbook</h3>
-                    <p class="feature-description">Run custom AI playbooks to review your contract.</p>
+            <!-- Playbook Feature -->
+            <div id="playbook-view" class="feature-view">
+                <div class="feature-header">
+                    <button class="back-button" onclick="showLandingView()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 class="feature-title">AI Playbook</h2>
+                </div>
+                <div class="feature-content">
                     <button id="run-playbook-btn" class="action-button">Run Playbook</button>
                     <div id="playbook-loading" class="loading-container" style="display: none;">
                         <div class="loading"></div>
@@ -93,30 +231,19 @@
                     <div id="playbook-result" class="result-container"></div>
                 </div>
             </div>
-
-            <!-- Approval Tab -->
-            <div id="approval-tab" class="tab-content">
-                <div class="feature-container">
-                    <h3>Approval Workflow</h3>
-                    <p class="feature-description">Start the approval workflow for this contract.</p>
-                    <button id="start-approval-btn" class="action-button">Start Approval</button>
-                    <div id="approval-loading" class="loading-container" style="display: none;">
-                        <div class="loading"></div>
-                        <span>Starting approval...</span>
-                    </div>
-                    <div id="approval-result" class="result-container"></div>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Load Plugin Scripts -->
+    <script src="scripts/streaming-utils.js"></script>
+    <script src="scripts/progress-loader.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/askAI.js"></script>
     <script src="scripts/summary.js"></script>
     <script src="scripts/obligations.js"></script>
     <script src="scripts/clauses.js"></script>
     <script src="scripts/playbook.js"></script>
+    <script src="scripts/library.js"></script>
     <script src="scripts/approval.js"></script>
 </body>
 </html>

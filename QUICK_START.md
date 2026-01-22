@@ -1,286 +1,117 @@
 # Quick Start Guide - AI Contract Assistant Plugin
 
-## 🚀 Getting Started in 5 Minutes
+## 🚀 Getting Started
 
-### Step 0: Start Local Server (IMPORTANT!)
+This guide will help you set up and run the AI Contract Assistant plugin for OnlyOffice in minutes.
+
+---
+
+## Prerequisites
+
+- OnlyOffice Desktop Editors or Document Server installed
+- A local web server (for development) or web hosting (for production)
+- Access to your contract backend API
+
+---
+
+## Step 1: Plugin Structure
+
+Your plugin folder should have this structure:
+
+```
+{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}/
+├── config.json              # Plugin configuration (REQUIRED)
+├── index.html              # Main plugin UI
+├── scripts/
+│   ├── main.js            # Plugin initialization & API helpers
+│   ├── askAI.js           # Ask AI feature
+│   ├── summary.js         # Summary generation
+│   ├── obligations.js     # Obligations extraction
+│   ├── clauses.js         # Clauses extraction
+│   ├── playbook.js        # AI Playbook execution
+│   └── approval.js        # Approval workflow
+├── styles/
+│   └── plugin.css         # Plugin styles
+└── resources/
+    └── img/               # Plugin icons
+        ├── icon.svg
+        ├── ask-ai-icon.svg
+        ├── summary-icon.svg
+        ├── obligations-icon.svg
+        ├── clauses-icon.svg
+        ├── playbook-icon.svg
+        └── approval-icon.svg
+```
+
+---
+
+## Step 2: Start Local Development Server
 
 **Before testing, you MUST start a local web server!**
 
-**Windows (PowerShell/CMD):**
-```bash
-cd contract-frontend\onlyoffice-plugins\ai-contract-plugin
+### Windows (PowerShell)
+
+```powershell
+# Navigate to plugin directory
+cd onlyoffice-plugins\{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}
+
+# Option 1: Use provided script
+.\start-server.ps1
+
+# Option 2: Manual start
 npx http-server -p 8080 --cors
 ```
 
-**Mac/Linux:**
-```bash
-cd contract-frontend/onlyoffice-plugins/ai-contract-plugin
+### Windows (CMD/Batch)
+
+```batch
+# Double-click start-server.bat
+# OR run manually:
+cd onlyoffice-plugins\{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}
 npx http-server -p 8080 --cors
 ```
 
-**Or use the provided scripts:**
-- **Windows:** Double-click `start-server.bat` or run `.\start-server.ps1` in PowerShell
-- **Mac/Linux:** Run `./start-server.sh` (make executable: `chmod +x start-server.sh`)
+### Mac/Linux
 
-**Verify server is running:**
-1. Open browser: http://localhost:8080
+```bash
+# Navigate to plugin directory
+cd onlyoffice-plugins/{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}
+
+# Make script executable (first time only)
+chmod +x start-server.sh
+
+# Run script
+./start-server.sh
+
+# OR run manually:
+npx http-server -p 8080 --cors
+```
+
+### Verify Server is Running
+
+1. Open browser: **http://localhost:8080**
 2. You should see a file listing
-3. Try: http://localhost:8080/config.json
-4. Should display the JSON configuration
+3. Test config.json: **http://localhost:8080/config.json**
+4. Should display valid JSON configuration
 
-**Troubleshooting "connection refused":**
-- ✅ Make sure server is running (check terminal window)
-- ✅ Check port 8080 is not in use
-- ✅ Try different port: `npx http-server -p 3000 --cors`
-- ✅ Check firewall settings
-- ✅ Make sure you're in the correct directory
+---
 
-### Step 1: Verify Plugin Structure
+## Step 3: Configure Backend Integration
 
-Make sure you have this folder structure:
-```
-onlyoffice-plugins/
-└── ai-contract-plugin/
-    ├── config.json
-    ├── index.html
-    ├── scripts/
-    │   ├── main.js
-    │   ├── askAI.js
-    │   ├── summary.js
-    │   ├── obligations.js
-    │   ├── clauses.js
-    │   ├── playbook.js
-    │   └── approval.js
-    ├── styles/
-    │   └── plugin.css
-    └── resources/
-        └── img/
-            └── (icon files)
-```
+### Update OnlyOffice Service Configuration
 
-### Step 2: Icon Files ✅
-
-**Good news!** Sample SVG icons are already included:
-- ✅ `resources/img/icon.svg` - Main plugin icon
-- ✅ `resources/img/ask-ai-icon.svg` - Ask AI feature
-- ✅ `resources/img/summary-icon.svg` - Summary feature
-- ✅ `resources/img/obligations-icon.svg` - Obligations feature
-- ✅ `resources/img/clauses-icon.svg` - Clauses feature
-- ✅ `resources/img/playbook-icon.svg` - AI Playbook feature
-- ✅ `resources/img/approval-icon.svg` - Approval feature
-
-All icons are ready to use! They're designed with:
-- Blue theme (#2667ff) matching your design system
-- 32x32px size for buttons
-- 64x64px for main icon
-- Clean, modern design
-
-**Note:** If you prefer PNG format, you can convert these SVGs using any image editor or online tool.
-
-### Step 3: Test Locally (Developer Mode)
-
-#### Option A: Direct Configuration (Recommended)
-
-Instead of using developer mode, configure the plugin directly in your backend:
-
-1. **Start a local server:**
-
-   **Windows (PowerShell/CMD):**
-   ```bash
-   cd contract-frontend\onlyoffice-plugins\ai-contract-plugin
-   npx http-server -p 8080 --cors
-   ```
-   
-   **Or use the provided script:**
-   ```bash
-   # Double-click start-server.bat
-   # OR run in PowerShell:
-   .\start-server.ps1
-   ```
-
-   **Mac/Linux:**
-   ```bash
-   cd contract-frontend/onlyoffice-plugins/ai-contract-plugin
-   npx http-server -p 8080 --cors
-   ```
-   
-   **Or use the provided script:**
-   ```bash
-   chmod +x start-server.sh
-   ./start-server.sh
-   ```
-
-   **Verify server is running:**
-   - Open browser and go to: http://localhost:8080
-   - You should see a file listing or the plugin files
-   - Try: http://localhost:8080/config.json
-   - Should show the JSON configuration
-
-2. **Update your backend OnlyOffice configuration** to include the plugin:
-   ```javascript
-   // In your onlyOfficeService.js
-   editorConfig: {
-       // ... other config
-       plugins: {
-           autostart: ['asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}'],
-           pluginsData: [
-               "http://localhost:8080/config.json"  // Your local plugin
-           ]
-       }
-   }
-   ```
-
-3. **Open OnlyOffice Editor** - The plugin should load automatically!
-
-#### Option B: Developer Mode (If Option A doesn't work)
-
-**Important:** The `Asc.editor` API is only available when the editor is fully loaded.
-
-1. **Start a local server:**
-   
-   **Windows:**
-   ```bash
-   cd contract-frontend\onlyoffice-plugins\ai-contract-plugin
-   npx http-server -p 8080 --cors
-   ```
-   
-   **Mac/Linux:**
-   ```bash
-   cd contract-frontend/onlyoffice-plugins/ai-contract-plugin
-   npx http-server -p 8080 --cors
-   ```
-   
-   **Verify it's working:**
-   - Open http://localhost:8080 in your browser
-   - You should see your plugin files
-   - Try http://localhost:8080/config.json - should show JSON
-
-2. **Open OnlyOffice Editor** in your browser with a document loaded
-
-3. **Wait for editor to fully load** (wait 5-10 seconds after page loads)
-
-4. **Open Browser Console** (F12)
-
-5. **Check if API is available:**
-   ```javascript
-   // First, check if Asc is available
-   console.log(typeof Asc);  // Should be "object"
-   console.log(typeof Asc.editor);  // Should be "object"
-   ```
-
-6. **If API is available, install plugin:**
-   ```javascript
-   // Method 1: Try this first
-   if (typeof Asc !== 'undefined' && Asc.editor) {
-       Asc.editor.installDeveloperPlugin("http://localhost:8080/config.json");
-   }
-   
-   // Method 2: Alternative (if Method 1 doesn't work)
-   if (typeof window.Asc !== 'undefined' && window.Asc.editor) {
-       window.Asc.editor.installDeveloperPlugin("http://localhost:8080/config.json");
-   }
-   
-   // Method 3: Wait for editor ready event
-   window.addEventListener('load', function() {
-       setTimeout(function() {
-           if (typeof Asc !== 'undefined' && Asc.editor) {
-               Asc.editor.installDeveloperPlugin("http://localhost:8080/config.json");
-               console.log('Plugin installed!');
-           } else {
-               console.error('OnlyOffice API not available. Make sure editor is fully loaded.');
-           }
-       }, 2000); // Wait 2 seconds for editor to initialize
-   });
-   ```
-
-7. **Refresh the page** - Your plugin should appear!
-
-#### Troubleshooting Developer Mode
-
-**Error: "Cannot read properties of undefined"**
-
-This means `Asc.editor` is not available. Try:
-
-1. **Wait longer** - The editor takes time to load:
-   ```javascript
-   // Wait 5 seconds after page load
-   setTimeout(function() {
-       if (typeof Asc !== 'undefined' && Asc.editor) {
-           Asc.editor.installDeveloperPlugin("http://localhost:8080/config.json");
-       } else {
-           console.error('Editor API not ready. Try refreshing the page.');
-       }
-   }, 5000);
-   ```
-
-2. **Check editor context** - Make sure you're in the editor iframe:
-   ```javascript
-   // Check if you're in the right context
-   console.log(window.location.href);
-   // Should be something like: http://documentserver/...
-   ```
-
-3. **Use Option A instead** - Direct configuration is more reliable
-
-4. **Check CORS** - Make sure your server has CORS enabled:
-   ```bash
-   # http-server with CORS
-   npx http-server -p 8080 --cors
-   
-   # Or python with CORS headers
-   python -m http.server 8080
-   # (Note: Python's server doesn't have CORS by default)
-   ```
-
-### Step 4: Verify Plugin is Working
-
-After installation, verify the plugin:
-
-1. **Check Plugin Manager:**
-   - In OnlyOffice editor, go to **Plugins** → **Plugin Manager**
-   - Look for "AI Contract Assistant"
-   - It should show as installed/enabled
-
-2. **Check for Plugin Panel:**
-   - The plugin should appear as a right-side panel
-   - Look for plugin buttons in the toolbar (if configured)
-
-3. **Check Browser Console:**
-   - Open Console (F12)
-   - Look for: "AI Contract Assistant Plugin initialized"
-   - Check for any errors
-
-4. **Test a Feature:**
-   - Click on a feature tab (e.g., "Summary")
-   - Click "Generate Summary" button
-   - Check if API calls are made (Network tab)
-
-### Step 5: Update Backend Configuration
-
-In your backend code (where you configure OnlyOffice), update the plugin configuration:
+In your backend `onlyOfficeService.js`, configure the plugin:
 
 ```javascript
-// In your onlyOfficeService.js or similar file
-plugins: {
-    autostart: ['asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}'],
-    pluginsData: [
-        `${process.env.ONLYOFFICE_SERVER_URL}/plugins/ai-contract-plugin/config.json`
-    ]
-}
-```
-
-### Step 6: Pass Plugin Data
-
-When initializing the plugin, pass necessary data:
-
-```javascript
-// In your backend, when creating OnlyOffice config
 editorConfig: {
-    // ... other config
+    // ... other configuration
     plugins: {
+        autostart: ['asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}'],
         pluginsData: [
             {
-                url: `${ONLYOFFICE_SERVER_URL}/plugins/ai-contract-plugin/config.json`,
+                url: "http://localhost:8080/config.json",  // Development
+                // OR for production:
+                // url: `${process.env.ONLYOFFICE_SERVER_URL}/plugins/ai-contract/config.json`,
                 initData: JSON.stringify({
                     contractId: contractId,
                     accessToken: accessToken,
@@ -294,100 +125,228 @@ editorConfig: {
 }
 ```
 
-### Step 7: Deploy to Document Server
+### Important Configuration Notes
 
-1. **Copy plugin folder to Document Server:**
-   ```bash
-   # Linux
-   sudo cp -r contract-frontend/onlyoffice-plugins/ai-contract-plugin \
-        /var/www/onlyoffice/documentserver/sdkjs-plugins/
-   
-   # Windows
-   xcopy contract-frontend\onlyoffice-plugins\ai-contract-plugin \
-        "C:\Program Files\ONLYOFFICE\DocumentServer\sdkjs-plugins\ai-contract-plugin\" /E /I
-   ```
-
-2. **Set proper permissions:**
-   ```bash
-   sudo chown -R onlyoffice:onlyoffice /var/www/onlyoffice/documentserver/sdkjs-plugins/ai-contract-plugin
-   sudo chmod -R 755 /var/www/onlyoffice/documentserver/sdkjs-plugins/ai-contract-plugin
-   ```
-
-3. **Restart Document Server:**
-   ```bash
-   sudo supervisorctl restart ds:docservice
-   # OR
-   sudo systemctl restart ds-docservice
-   ```
-
-### Step 8: Verify Installation
-
-1. Open OnlyOffice editor
-2. Go to **Plugins** → **Plugin Manager**
-3. Find "AI Contract Assistant"
-4. Enable it
-5. The plugin panel should appear on the right side
-
-## 🔧 Common Issues & Solutions
-
-### Quick Fixes
-
-**Error: "localhost refused to connect"**
-
-👉 **Solution:** Your local server isn't running!
-1. Make sure you're in the plugin directory
-2. Run: `npx http-server -p 8080 --cors`
-3. Verify: Open http://localhost:8080 in browser
-4. See "Server Setup" section below for detailed steps
-
-**Error: "Cannot read properties of undefined (reading 'installDeveloperPlugin')"**
-
-👉 **Solution:** Use **Option A (Direct Configuration)** instead of developer mode. It's more reliable!
-
-Or use the helper script:
-1. Open browser console
-2. Copy and paste content from `install-plugin.js`
-3. Press Enter
-
-**For more detailed troubleshooting, see:**
-- 📖 **TROUBLESHOOTING.md** - Complete troubleshooting guide
-- 🔧 **install-plugin.js** - Helper script for installation
-
-### Common Checks
-
-**Plugin Not Appearing:**
-- ✅ `config.json` syntax is valid (use JSON validator)
-- ✅ All file paths in `config.json` are correct
-- ✅ Icon files exist
-- ✅ File permissions are correct
-- ✅ Document Server was restarted
-
-**API Calls Failing:**
-- ✅ Backend URL is correct in `main.js`
-- ✅ Access token is being passed correctly
-- ✅ CORS is enabled on your backend
-- ✅ Backend endpoints match your API
-
-**UI Not Displaying:**
-- ✅ Browser console for JavaScript errors
-- ✅ CSS file is loading (check Network tab)
-- ✅ HTML structure is correct
-
-## 📝 Next Steps
-
-1. **Customize the UI** - Update `styles/plugin.css`
-2. **Add more features** - Extend the JavaScript modules
-3. **Test thoroughly** - Test all features with real documents
-4. **Add error handling** - Improve user experience
-5. **Add loading states** - Better UX during API calls
-
-## 🆘 Need Help?
-
-1. Check the main README.md for detailed explanations
-2. Review OnlyOffice plugin documentation
-3. Check browser console for errors
-4. Ask your team for assistance
+- **Development:** Use `http://localhost:8080/config.json` (local server)
+- **Production:** Use your OnlyOffice server URL: `${ONLYOFFICE_SERVER_URL}/plugins/...`
+- **initData:** Passes contract context to the plugin (contractId, tokens, etc.)
+- **autostart:** Automatically starts the plugin when editor loads
 
 ---
 
-**Happy Plugin Development! 🎉**
+## Step 4: Test Plugin Locally
+
+### Option A: Web Editor (Recommended for Testing)
+
+1. **Start local server** (see Step 2)
+2. **Open OnlyOffice editor** in your web browser
+3. **Load a document**
+4. **Plugin should appear automatically** as a right-side panel
+5. **Check browser console** (F12) for initialization message:
+   ```
+   AI Contract Assistant Plugin initialized
+   ```
+
+### Option B: Desktop Editor
+
+1. **Start local server** (see Step 2)
+2. **Open OnlyOffice Desktop Editor**
+3. **Create or open a Word document**
+4. **Go to Plugins menu**
+5. **Open Plugin Manager**
+6. **Install plugin:**
+   - Enter URL: `http://localhost:8080/config.json`
+   - Click Install
+   - Enable the plugin
+
+---
+
+## Step 5: Verify Plugin Features
+
+### Check Plugin Panel
+
+1. Plugin panel should appear on the right side
+2. Should show 6 tabs: Ask AI, Summary, Obligations, Clauses, AI Playbook, Approval
+3. Each tab should be clickable
+
+### Test Basic Functionality
+
+1. **Click "Summary" tab**
+2. **Click "Generate Summary" button**
+3. **Check Network tab** (F12 → Network) for API call:
+   - Should call: `/ai-assistant/onlyoffice/generate-summary`
+   - Should include `x-auth-token` header
+   - Should include `contractId` parameter
+
+### Check Console for Errors
+
+Open browser console (F12) and verify:
+- ✅ No JavaScript errors
+- ✅ Plugin initialization message
+- ✅ API calls are being made
+- ✅ Responses are received
+
+---
+
+## Step 6: Deploy to Production
+
+### For Document Server (Linux)
+
+```bash
+# 1. Copy plugin to Document Server
+sudo cp -r {9DC93CDB-B576-4F0C-B55E-FCC9C48DD007} \
+     /var/www/onlyoffice/documentserver/sdkjs-plugins/
+
+# 2. Set proper permissions
+sudo chown -R onlyoffice:onlyoffice \
+     /var/www/onlyoffice/documentserver/sdkjs-plugins/{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}
+sudo chmod -R 755 \
+     /var/www/onlyoffice/documentserver/sdkjs-plugins/{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}
+
+# 3. Restart Document Server
+sudo supervisorctl restart ds:docservice
+# OR
+sudo systemctl restart ds-docservice
+```
+
+### For Desktop Editor (Windows)
+
+```powershell
+# 1. Copy plugin to Desktop Editors directory
+Copy-Item -Path "{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}" \
+          -Destination "C:\Program Files\ONLYOFFICE\DesktopEditors\editors\sdkjs-plugins\" \
+          -Recurse -Force
+
+# 2. Restart OnlyOffice Desktop Editor
+```
+
+### Update Backend Configuration for Production
+
+```javascript
+editorConfig: {
+    plugins: {
+        autostart: ['asc.{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}'],
+        pluginsData: [
+            {
+                url: `${process.env.ONLYOFFICE_SERVER_URL}/plugins/ai-contract/config.json`,
+                initData: JSON.stringify({
+                    contractId: contractId,
+                    accessToken: accessToken,
+                    userId: userId,
+                    organizationId: organizationId,
+                    backendUrl: process.env.BACKEND_BASE_URL + '/api'
+                })
+            }
+        ]
+    }
+}
+```
+
+---
+
+## Step 7: Icon Setup (Optional)
+
+The plugin uses SVG icons by default. To use PNG icons (recommended for production):
+
+### Create PNG Icon Structure
+
+1. Create directories:
+   ```
+   resources/
+   ├── light/
+   │   ├── icon.png
+   │   ├── icon@1.25x.png
+   │   ├── icon@1.5x.png
+   │   ├── icon@1.75x.png
+   │   └── icon@2x.png
+   └── dark/
+       ├── icon.png
+       ├── icon@1.25x.png
+       ├── icon@1.5x.png
+       ├── icon@1.75x.png
+       └── icon@2x.png
+   ```
+
+2. Convert your SVG icons to PNG at different scales
+3. The `config.json` already has the correct icon pattern configured
+
+---
+
+## 🔧 Troubleshooting
+
+### Plugin Not Appearing
+
+1. **Check server is running:**
+   ```bash
+   curl http://localhost:8080/config.json
+   ```
+
+2. **Check config.json is valid:**
+   - Use JSON validator
+   - Check all file paths are correct
+
+3. **Check browser console:**
+   - Look for plugin initialization errors
+   - Check for CORS errors
+
+### CORS Errors
+
+```bash
+# Make sure server has CORS enabled
+npx http-server -p 8080 --cors
+```
+
+### Plugin Loads But Features Don't Work
+
+1. **Check Network tab:**
+   - Verify API calls are made
+   - Check authentication headers
+   - Verify backend URL is correct
+
+2. **Check plugin data:**
+   ```javascript
+   // In browser console
+   console.log(window.pluginData);
+   // Should show: { contractId, accessToken, userId, ... }
+   ```
+
+3. **Verify backend endpoints:**
+   - Test endpoints directly with Postman/curl
+   - Check backend logs for errors
+
+---
+
+## 📋 Quick Checklist
+
+- [ ] Local server running on port 8080
+- [ ] config.json accessible at http://localhost:8080/config.json
+- [ ] Backend configuration updated with plugin URL
+- [ ] Plugin appears in OnlyOffice editor
+- [ ] Browser console shows "Plugin initialized"
+- [ ] Feature buttons are clickable
+- [ ] API calls are being made (check Network tab)
+- [ ] No console errors
+
+---
+
+## 📚 Next Steps
+
+- Read **PLUGIN_OVERVIEW.md** for detailed architecture
+- Check **TROUBLESHOOTING.md** for common issues
+- Review **MIGRATION_GUIDE.md** if migrating from React
+
+---
+
+## 🆘 Need Help?
+
+1. Check browser console for errors
+2. Review server logs
+3. Verify backend API endpoints
+4. Check OnlyOffice plugin documentation
+5. Review troubleshooting guide
+
+---
+
+**Plugin Version:** 1.0.0  
+**OnlyOffice Min Version:** 8.2.0  
+**Last Updated:** 2024
