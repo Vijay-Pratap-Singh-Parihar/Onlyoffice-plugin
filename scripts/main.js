@@ -1,19 +1,38 @@
-// Main Plugin Entry Point
+// Main Plugin Entry Point - Matches MS Editor App.jsx
 (function(window, undefined) {
     'use strict';
 
     // Store plugin data (contractId, accessToken, etc.) with default values
     window.pluginData = {
         contractId: '6970839dcf5e285074cf9bfb',
-        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTYwZDJkZThhNmExYTE3YjBjMzdiZSIsImZ1bGxOYW1lIjoiVmlqYXkgUHJhdGFwIiwiZW1haWwiOiJ2aWpheS5wcmF0YXBAbGVnaXN0aWZ5LmNvbSIsIm9yZ2FuaXphdGlvbklkIjoiNjJhMWEwMWNhYzAwNTk4ODNkYjQwODkxIiwib3JnYW5pemF0aW9uTmFtZSI6IkxvYWQgVGVzdGluZyBPcmciLCJ0eXBlT2ZVc2VyIjoiYWRtaW4iLCJ0eXBlIjoib3JnVXNlciIsImNrRWRpdG9yRW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiY2tFZGl0b3JFbmFibGVkRm9yVXNlciI6dHJ1ZSwiaXNDa0VkaXRvck1hbmFnZXIiOnRydWUsImVTaWduaW5nRW5hYmxlZCI6dHJ1ZSwicXVldWVSZXF1ZXN0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiZVNpZ25TZXJ2aWNlIjoibGVlZ2FsaXR5IiwiZVNpZ25PcHRpb25zRW5hYmxlZCI6W10sInN0b3JhZ2VJZCI6IkFXUy00YjVmNzVjZi05ODY2LTRhYjMtODEwMy01MDAzMTI5NTMyZDgiLCJpc1Bob25lTnVtYmVyTWFuZGF0b3J5Ijp0cnVlLCJlbmFibGVTZXRUdXJuIjp0cnVlLCJlbmFibGVTd2l0Y2hXb3Jrc3BhY2UiOnRydWUsImlhdCI6MTc2OTA2NDIxOCwiZXhwIjoxNzY5MTUwNjE4fQ.eW5UKdjToUvB4_cK-iUDJod91CB4RXa4oFyn9k4rHw4',
+        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTYwZDJkZThhNmExYTE3YjBjMzdiZSIsImZ1bGxOYW1lIjoiVmlqYXkgUHJhdGFwIiwiZW1haWwiOiJ2aWpheS5wcmF0YXBAbGVnaXN0aWZ5LmNvbSIsIm9yZ2FuaXphdGlvbklkIjoiNjJhMWEwMWNhYzAwNTk4ODNkYjQwODkxIiwib3JnYW5pemF0aW9uTmFtZSI6IkxvYWQgVGVzdGluZyBPcmciLCJ0eXBlT2ZVc2VyIjoiYWRtaW4iLCJ0eXBlIjoib3JnVXNlciIsImNrRWRpdG9yRW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiY2tFZGl0b3JFbmFibGVkRm9yVXNlciI6dHJ1ZSwiaXNDa0VkaXRvck1hbmFnZXIiOnRydWUsImVTaWduaW5nRW5hYmxlZCI6dHJ1ZSwicXVldWVSZXF1ZXN0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiZVNpZ25TZXJ2aWNlIjoibGVlZ2FsaXR5IiwiZVNpZ25PcHRpb25zRW5hYmxlZCI6W10sInN0b3JhZ2VJZCI6IkFXUy00YjVmNzVjZi05ODY2LTRhYjMtODEwMy01MDAzMTI5NTMyZDgiLCJpc1Bob25lTnVtYmVyTWFuZGF0b3J5Ijp0cnVlLCJlbmFibGVTZXRUdXJuIjp0cnVlLCJlbmFibGVTd2l0Y2hXb3Jrc3BhY2UiOnRydWUsImlhdCI6MTc2OTE2NTk5MiwiZXhwIjoxNzY5MjUyMzkyfQ.bOx0voxTAMnvN3XIDGxLnrh44m1XidqLLyVqPU364Bo',
         userId: '68e60d2de8a6a1a17b0c37be',
         organizationId: '62a1a01cac0059883db40891',
-        backendUrl: 'https://contract-frontend-dev.legistrak.com/api',
+        backendUrl: 'https://contract-backend-dev.legistrak.com/api',
         permissions: {}
     };
 
-    // Store original init function
-    const originalPluginInit = window.Asc && window.Asc.plugin && window.Asc.plugin.init;
+    // State management - matches MS Editor App.jsx
+    let selectedTab = 'Playbook';
+    let previousTab = 'Playbook'; // Track previous tab before opening Copilot
+    let activeContent = null;
+    let loadingState = {
+        summary: false,
+        clause: false,
+        obligation: false,
+        library: false,
+        clauseApproval: false
+    };
+    let activeContentData = {
+        summaryData: null,
+        clauseData: null,
+        obligationData: null,
+        libraryData: null,
+        summaryTimeStamp: null,
+        clauseTimeStamp: null,
+        obligationTimeStamp: null,
+        clauseApprovalsData: null
+    };
     
     // Plugin initialization - called when OnlyOffice loads the plugin
     window.Asc.plugin.init = function() {
@@ -54,8 +73,8 @@
             backendUrl: window.pluginData.backendUrl
         });
         
-        // Initialize card-based navigation
-        initCardNavigation();
+        // Initialize tab navigation
+        initTabNavigation();
         
         // Initialize OnlyOffice API connection
         initOnlyOfficeAPI();
@@ -63,47 +82,584 @@
         // Initialize resize handle
         initResizeHandle();
         
-        // Set up close button event listeners (for custom close button)
+        // Set up close button event listeners
         setupCloseButtonListeners();
         
         // Open plugin panel on left side
         openPluginPanel();
+        
+        // Initialize default view
+        handleTabChange('Playbook');
     };
     
-    // Set up close button event listeners
-    function setupCloseButtonListeners() {
-        // Listen for clicks on the custom close button
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.panel-close-button')) {
-                e.preventDefault();
-                e.stopPropagation();
-                closePluginPanel();
+    // Initialize tab navigation - matches MS Editor App.jsx
+    function initTabNavigation() {
+        // Set default tab to Playbook
+        selectedTab = 'Playbook';
+        updateTabUI();
+    }
+
+    // Handle tab change - matches MS Editor App.jsx onTabChange
+    window.handleTabChange = function(tabName) {
+        // Store previous tab before switching (only if not already Assistant)
+        if (selectedTab !== 'Assistant' && tabName === 'Assistant') {
+            previousTab = selectedTab;
+        }
+        
+        selectedTab = tabName;
+        updateTabUI();
+        
+        // Hide review hub immediately when switching tabs
+        const reviewHubView = document.getElementById('review-hub-view');
+        if (reviewHubView) reviewHubView.style.display = 'none';
+        
+        if (tabName === 'Assistant') {
+            // Immediately open Copilot drawer
+            setActiveContent('genai');
+        } else if (tabName === 'Playbook') {
+            setActiveContent('playbook');
+        } else {
+            setActiveContent(null);
+        }
+    };
+
+    // Update tab UI
+    function updateTabUI() {
+        const tabs = document.querySelectorAll('.tab-button');
+        tabs.forEach(tab => {
+            if (tab.getAttribute('data-tab') === selectedTab) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+    }
+
+    // Set active content - matches MS Editor App.jsx
+    function setActiveContent(contentKey) {
+        activeContent = contentKey;
+        updateContentView();
+    }
+
+    // Update content view based on activeContent
+    function updateContentView() {
+        // Hide all views
+        const reviewHubView = document.getElementById('review-hub-view');
+        const playbookView = document.getElementById('playbook-view');
+        const assistantView = document.getElementById('assistant-view');
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+
+        if (reviewHubView) reviewHubView.style.display = 'none';
+        if (playbookView) playbookView.style.display = 'none';
+        if (assistantView) assistantView.style.display = 'none';
+        if (drawer) drawer.style.display = 'none';
+        if (drawerOverlay) drawerOverlay.style.display = 'none';
+
+        if (activeContent === 'playbook') {
+            // Show playbook view
+            if (playbookView) {
+                playbookView.style.display = 'block';
+                // Re-render playbook list if not showing create page/form
+                if (window.renderPlaybookList && !window.showCreatePage && !window.showCreateForm) {
+                    window.renderPlaybookList();
+                }
+            }
+            // Initialize playbook if not already done
+            if (window.initPlaybookView) {
+                window.initPlaybookView();
+            }
+        } else if (activeContent === 'genai' || activeContent === 'askai') {
+            // Show assistant/copilot view in drawer - hide review hub first
+            if (reviewHubView) reviewHubView.style.display = 'none';
+            openDrawer('genai');
+        } else if (activeContent === 'summary' || activeContent === 'clause' || activeContent === 'obligation' || 
+                   activeContent === 'library' || activeContent === 'clauseApproval') {
+            // Show drawer with content
+            if (reviewHubView) reviewHubView.style.display = 'none';
+            openDrawer(activeContent);
+        } else {
+            // Show review hub (card buttons) only if not in Copilot tab
+            if (selectedTab !== 'Assistant' && reviewHubView) {
+                reviewHubView.style.display = 'block';
+            }
+        }
+    }
+
+    // Open drawer - matches MS Editor CustomDrawer
+    function openDrawer(contentKey) {
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        const drawerContent = document.getElementById('drawer-content');
+        const drawerTitle = document.getElementById('drawer-title');
+        const drawerHeaderActions = document.getElementById('drawer-header-actions');
+        const drawerRegenerateBtn = document.getElementById('drawer-regenerate-btn');
+        const drawerCopyBtn = document.getElementById('drawer-copy-btn');
+        
+        if (!drawer || !drawerContent) return;
+
+        // Hide all drawer views
+        const drawerViews = document.querySelectorAll('.drawer-view');
+        drawerViews.forEach(view => view.style.display = 'none');
+
+        // Show appropriate view
+        const viewMap = {
+            'summary': 'summary-view',
+            'clause': 'clauses-view',
+            'obligation': 'obligations-view',
+            'library': 'library-view',
+            'clauseApproval': 'clauseApproval-view',
+            'genai': 'ask-ai-view',
+            'askai': 'ask-ai-view'
+        };
+
+        const titleMap = {
+            'summary': 'Summary',
+            'clause': 'Clauses',
+            'obligation': 'Obligations',
+            'library': 'Clause Library',
+            'clauseApproval': 'Clause Approval',
+            'genai': 'AI Copilot',
+            'askai': 'AI Copilot'
+        };
+
+        const viewId = viewMap[contentKey];
+        const view = document.getElementById(viewId);
+        
+        if (view) {
+            view.style.display = 'block';
+            if (drawerContent) {
+                drawerContent.innerHTML = '';
+                // Clone the view and append to drawer
+                const clonedView = view.cloneNode(true);
+                drawerContent.appendChild(clonedView);
+                
+                // Remove action boxes from cloned content (they'll be in header)
+                const actionBoxes = clonedView.querySelectorAll('.response-action-box');
+                actionBoxes.forEach(box => box.remove());
+                
+                // Remove feature-header from Ask AI view (header is in drawer)
+                if (contentKey === 'genai' || contentKey === 'askai') {
+                    const featureHeaders = clonedView.querySelectorAll('.feature-header');
+                    featureHeaders.forEach(header => header.remove());
+                }
+                
+                // Update IDs in cloned view to work with drawer
+                const updateIds = (element, suffix) => {
+                    if (element.id) {
+                        element.id = element.id + suffix;
+                    }
+                    Array.from(element.children).forEach(child => updateIds(child, suffix));
+                };
+                updateIds(clonedView, '-drawer');
+            }
+            if (drawerTitle) {
+                drawerTitle.textContent = titleMap[contentKey] || contentKey;
+            }
+            
+            // Setup header action buttons for Summary, Clauses, Obligations
+            if (drawerHeaderActions && (contentKey === 'summary' || contentKey === 'clause' || contentKey === 'obligation')) {
+                drawerHeaderActions.style.display = 'flex';
+                
+                if (drawerRegenerateBtn) {
+                    drawerRegenerateBtn.style.display = 'flex';
+                    drawerRegenerateBtn.onclick = () => {
+                        if (contentKey === 'summary' && window.regenerateSummary) {
+                            window.regenerateSummary();
+                        } else if (contentKey === 'clause' && window.regenerateClauses) {
+                            window.regenerateClauses();
+                        } else if (contentKey === 'obligation' && window.regenerateObligations) {
+                            window.regenerateObligations();
+                        }
+                    };
+                }
+                
+                if (drawerCopyBtn) {
+                    drawerCopyBtn.style.display = 'flex';
+                    drawerCopyBtn.onclick = () => {
+                        if (contentKey === 'summary' && window.copySummary) {
+                            window.copySummary();
+                        } else if (contentKey === 'clause' && window.copyClauses) {
+                            window.copyClauses();
+                        } else if (contentKey === 'obligation' && window.copyObligations) {
+                            window.copyObligations();
+                        }
+                    };
+                }
+            } else if (drawerHeaderActions) {
+                // Hide header actions for other views (Library, Approval, Copilot)
+                drawerHeaderActions.style.display = 'none';
+            }
+        }
+
+        // Show drawer and overlay
+        if (drawer) drawer.style.display = 'block';
+        if (drawerOverlay) drawerOverlay.style.display = 'block';
+
+        // Initialize the view after drawer is shown (for progress loader)
+        // Use a small delay to ensure DOM is ready
+        setTimeout(() => {
+            if (contentKey === 'summary' && window.initSummaryView) {
+                window.initSummaryView();
+            } else if (contentKey === 'clause' && window.initClausesView) {
+                window.initClausesView();
+            } else if (contentKey === 'obligation' && window.initObligationsView) {
+                window.initObligationsView();
+            } else if (contentKey === 'library' && window.initLibraryView) {
+                window.initLibraryView();
+            } else if (contentKey === 'clauseApproval' && window.initApprovalView) {
+                window.initApprovalView();
+            } else if ((contentKey === 'genai' || contentKey === 'askai') && window.initAskAIView) {
+                window.initAskAIView();
+            }
+        }, 150);
+    }
+
+    // Close drawer
+    window.closeDrawer = function() {
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        const drawerContent = document.getElementById('drawer-content');
+        const drawerHeaderActions = document.getElementById('drawer-header-actions');
+        
+        // Check if we're closing Copilot drawer
+        const wasCopilot = activeContent === 'genai' || activeContent === 'askai';
+        
+        if (drawer) drawer.style.display = 'none';
+        if (drawerOverlay) drawerOverlay.style.display = 'none';
+        if (drawerContent) drawerContent.innerHTML = '';
+        if (drawerHeaderActions) {
+            drawerHeaderActions.style.display = 'none';
+            const regenerateBtn = document.getElementById('drawer-regenerate-btn');
+            const copyBtn = document.getElementById('drawer-copy-btn');
+            if (regenerateBtn) regenerateBtn.style.display = 'none';
+            if (copyBtn) copyBtn.style.display = 'none';
+        }
+        
+        // Hide all drawer-view elements (library-view, summary-view, clauses-view, etc.)
+        const drawerViews = document.querySelectorAll('.drawer-view');
+        drawerViews.forEach(view => {
+            view.style.display = 'none';
+            // Clear content from library-view and clauseApproval-view to prevent showing stale data
+            if (view.id === 'library-view' || view.id === 'clauseApproval-view') {
+                const container = view.querySelector('.library-container, .clauseApproval-container');
+                if (container) {
+                    container.innerHTML = '';
+                }
+                // Also clear any error messages
+                const errorElements = view.querySelectorAll('.error-message, [class*="error"]');
+                errorElements.forEach(el => el.remove());
             }
         });
         
-        // Also handle OnlyOffice's built-in close button if it exists
-        // OnlyOffice's close button might be in a different DOM location
-        setTimeout(function() {
-            // Try to find OnlyOffice's close button and attach listener
-            const onlyOfficeCloseBtn = document.querySelector('.asc-window-close, .plugin-close, [aria-label*="close" i], [title*="close" i]');
-            if (onlyOfficeCloseBtn) {
-                onlyOfficeCloseBtn.addEventListener('click', function(e) {
-                    console.log('OnlyOffice close button clicked');
-                    // OnlyOffice should handle this automatically, but we can ensure our handler is called
-                    if (window.Asc && window.Asc.plugin && window.Asc.plugin.onClose) {
-                        window.Asc.plugin.onClose();
-                    }
-                });
+        setActiveContent(null);
+        
+        // If closing Copilot, restore previous tab
+        if (wasCopilot && previousTab) {
+            handleTabChange(previousTab);
+        }
+    };
+
+    // Handle button click - matches MS Editor App.jsx handleButtonClick
+    window.handleButtonClick = async function(contentKey) {
+        // Set loading state
+        setLoadingState(contentKey, true);
+        
+        // Set active content to show drawer first (so progress loader can be shown immediately)
+        setActiveContent(contentKey);
+        
+        // For Summary, Clauses, Obligations - initialize view immediately to show loader
+        // The view will auto-check for existing data and auto-generate if not found
+        if (contentKey === 'summary') {
+            // Initialize summary view immediately - will show loader and auto-generate
+            if (window.initSummaryView) {
+                window.initSummaryView();
             }
-        }, 500);
+        } else if (contentKey === 'clause') {
+            // Initialize clauses view immediately - will show loader and auto-generate
+            if (window.initClausesView) {
+                window.initClausesView();
+            }
+        } else if (contentKey === 'obligation') {
+            // Initialize obligations view immediately - will show loader and auto-generate
+            if (window.initObligationsView) {
+                window.initObligationsView();
+            }
+        } else if (contentKey === 'library') {
+            await getClauseLibrary();
+            if (window.initLibraryView) {
+                window.initLibraryView();
+            }
+        } else if (contentKey === 'clauseApproval') {
+            await getClauseApprovals();
+            if (window.initApprovalView) {
+                window.initApprovalView();
+            }
+        }
+        
+        setLoadingState(contentKey, false);
+    };
+
+    // Set loading state
+    function setLoadingState(contentKey, isLoading) {
+        loadingState[contentKey] = isLoading;
+        const spinner = document.getElementById(contentKey + '-spinner');
+        if (spinner) {
+            spinner.style.display = isLoading ? 'inline-block' : 'none';
+        }
+    }
+
+    // Fetch summary or clause generated or not - matches MS Editor
+    async function fetchSummaryOrClauseGeneratedOrNot(contentKey) {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        
+        if (!pluginData.contractId || !accessToken) return;
+
+        try {
+            const url = `${backendUrl}/ai-assistant/fetch-Summary-Clause?contractId=${pluginData.contractId}`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (contentKey === 'summary' && data && data.summary) {
+                    activeContentData.summaryData = data.summary;
+                    activeContentData.summaryTimeStamp = data.summaryUpdatedAt;
+                } else if (contentKey === 'clause' && data && data.clause) {
+                    activeContentData.clauseData = data.clause;
+                    activeContentData.clauseTimeStamp = data.clauseUpdatedAt;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching summary/clause:', error);
+        }
+    }
+
+    // Fetch obligation generated or not - matches MS Editor
+    async function fetchObligationGeneratedOrNot() {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        
+        if (!pluginData.contractId || !accessToken) return;
+
+        try {
+            const url = `${backendUrl}/ai-assistant/fetch-obligation?contractId=${pluginData.contractId}`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status && data.data && data.data.obligation) {
+                    activeContentData.obligationData = data.data.obligation;
+                    activeContentData.obligationTimeStamp = data.data.obligationUpdatedAt;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching obligation:', error);
+        }
+    }
+
+    // Get clause library - matches MS Editor
+    async function getClauseLibrary() {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        
+        if (!accessToken) return;
+
+        try {
+            const url = `${backendUrl}/clause-library/clause-list?`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status && data.data && data.data.clauses) {
+                    activeContentData.libraryData = data.data.clauses;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching clause library:', error);
+        }
+    }
+
+    // Get clause approvals - matches MS Editor
+    async function getClauseApprovals() {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        
+        if (!pluginData.contractId || !accessToken) return;
+
+        try {
+            const url = `${backendUrl}/clause-approval/clause-approvals-list/${pluginData.contractId}`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    activeContentData.clauseApprovalsData = data.data;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching clause approvals:', error);
+        }
+    }
+
+    // Apply permissions to hide/show features
+    function applyPermissions(permissions) {
+        const featureMap = {
+            'summary': 'summary-btn',
+            'clauses': 'clause-btn',
+            'obligations': 'obligation-btn',
+            'playbook': null, // Playbook is in its own tab
+            'chat': null, // Chat is in Assistant tab
+            'approval': 'clauseApproval-btn',
+            'library': 'library-btn'
+        };
+        
+        Object.keys(featureMap).forEach(feature => {
+            const isAllowed = permissions[feature] !== false;
+            const buttonId = featureMap[feature];
+            
+            if (!isAllowed && buttonId) {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    button.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // Handle button clicks from OnlyOffice toolbar
+    window.Asc.plugin.button = function(id) {
+        const buttonMap = {
+            'askai': 'genai',
+            'ask-ai': 'genai',
+            'summary': 'summary',
+            'clauses': 'clause',
+            'obligations': 'obligation',
+            'aiplaybook': 'playbook',
+            'playbook': 'playbook',
+            'library': 'library',
+            'approval': 'clauseApproval'
+        };
+
+        const normalizedId = id.toLowerCase().replace(/\s+/g, '');
+        const contentKey = buttonMap[normalizedId] || buttonMap[id];
+        
+        if (contentKey) {
+            if (contentKey === 'playbook') {
+                handleTabChange('Playbook');
+            } else if (contentKey === 'genai' || contentKey === 'askai') {
+                handleTabChange('Assistant');
+                setTimeout(() => handleButtonClick('genai'), 100);
+            } else {
+                handleTabChange('ReviewHub');
+                setTimeout(() => handleButtonClick(contentKey), 100);
+            }
+        }
+    };
+
+    // Set up close button event listeners
+    function setupCloseButtonListeners() {
+        // Try multiple times to find the OnlyOffice close button (it may load later)
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const findAndSetupCloseButton = function() {
+            attempts++;
+            
+            // Try multiple selectors for OnlyOffice's close button
+            const selectors = [
+                '.asc-window-close',
+                '.plugin-close',
+                '[aria-label*="close" i]',
+                '[title*="close" i]',
+                '.asc-window-header .asc-window-close',
+                '.asc-window-header button[aria-label*="close" i]',
+                'button[title*="close" i]',
+                '.asc-window-header button:last-child',
+                '.asc-window-header .asc-window-button-close'
+            ];
+            
+            let onlyOfficeCloseBtn = null;
+            for (const selector of selectors) {
+                onlyOfficeCloseBtn = document.querySelector(selector);
+                if (onlyOfficeCloseBtn) {
+                    console.log('Found OnlyOffice close button with selector:', selector);
+                    break;
+                }
+            }
+            
+            // Also check parent window/frame for close button
+            if (!onlyOfficeCloseBtn) {
+                try {
+                    const parentDoc = window.parent?.document || window.top?.document;
+                    if (parentDoc) {
+                        for (const selector of selectors) {
+                            onlyOfficeCloseBtn = parentDoc.querySelector(selector);
+                            if (onlyOfficeCloseBtn) {
+                                console.log('Found OnlyOffice close button in parent with selector:', selector);
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin or other error, ignore
+                }
+            }
+            
+            if (onlyOfficeCloseBtn) {
+                // Remove any existing listeners to avoid duplicates
+                const newBtn = onlyOfficeCloseBtn.cloneNode(true);
+                onlyOfficeCloseBtn.parentNode.replaceChild(newBtn, onlyOfficeCloseBtn);
+                
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('OnlyOffice close button clicked');
+                    closePluginPanel();
+                });
+                
+                console.log('OnlyOffice close button listener attached');
+                return true;
+            } else if (attempts < maxAttempts) {
+                // Retry after a delay
+                setTimeout(findAndSetupCloseButton, 500);
+            } else {
+                console.warn('Could not find OnlyOffice close button after', maxAttempts, 'attempts');
+            }
+        };
+        
+        // Start looking for the close button
+        setTimeout(findAndSetupCloseButton, 100);
     }
     
     // Open plugin panel on the left side
     function openPluginPanel() {
         try {
-            // Try to show plugin panel using OnlyOffice API
             if (window.Asc && window.Asc.plugin && window.Asc.plugin.executeMethod) {
-                // Show the plugin panel - OnlyOffice will position it based on config
                 window.Asc.plugin.executeMethod("ShowPluginPanel", [], function() {
                     console.log('Plugin panel opened');
                 }, function(error) {
@@ -115,170 +671,14 @@
         }
     }
 
-    // Apply permissions to hide/show features
-    function applyPermissions(permissions) {
-        // Feature map: feature name -> { view selector, card selector }
-        const featureMap = {
-            'summary': { view: 'summary-view', card: 'summary', cardText: 'Summarise Your Draft' },
-            'clauses': { view: 'clauses-view', card: 'clauses', cardText: 'Extract Key Clauses' },
-            'obligations': { view: 'obligations-view', card: 'obligations', cardText: 'Identify Main Obligations' },
-            'playbook': { view: 'playbook-view', card: 'playbook', cardText: 'Run AI Playbook Review' },
-            'chat': { view: 'ask-ai-view', card: 'ask-ai', cardText: 'Chat With Your Draft' },
-            'approval': { view: 'approval-view', card: 'approval', cardText: 'Approval' },
-            'library': { view: 'library-view', card: 'library', cardText: 'Library' }
-        };
-        
-        Object.keys(featureMap).forEach(feature => {
-            // Check if feature is allowed (default to true if not specified)
-            const isAllowed = permissions[feature] !== false; // Allow if undefined or true
-            
-            if (!isAllowed) {
-                const { view, card } = featureMap[feature];
-                
-                // Hide feature card in landing view
-                const featureCard = document.querySelector(`[data-feature="${card}"]`);
-                if (featureCard) {
-                    featureCard.style.display = 'none';
-                }
-                
-                // Hide feature view
-                const featureView = document.getElementById(view);
-                if (featureView) {
-                    featureView.style.display = 'none';
-                }
-                
-                // Note: Toolbar buttons are controlled by OnlyOffice based on config.json
-                // If you need to hide toolbar buttons dynamically, you would need to use
-                // OnlyOffice API methods, but typically permissions are handled at config level
-            }
-        });
-    }
-
-    // Handle button clicks from OnlyOffice toolbar
-    window.Asc.plugin.button = function(id) {
-        // This function is called when user clicks a plugin button
-        // Map button IDs to feature names (button IDs are based on button text in lowercase with spaces removed)
-        const buttonMap = {
-            'askai': 'ask-ai',
-            'ask-ai': 'ask-ai',
-            'summary': 'summary',
-            'clauses': 'clauses',
-            'obligations': 'obligations',
-            'aiplaybook': 'playbook',
-            'playbook': 'playbook',
-            'library': 'library',
-            'approval': 'approval'
-        };
-
-        // Normalize button ID (remove spaces, convert to lowercase)
-        const normalizedId = id.toLowerCase().replace(/\s+/g, '');
-        const featureName = buttonMap[normalizedId] || buttonMap[id];
-        
-        if (featureName) {
-            // Ensure plugin panel is visible
-            if (window.Asc.plugin && window.Asc.plugin.executeMethod) {
-                // Open plugin panel if not already open
-                window.Asc.plugin.executeMethod("ShowPluginPanel", [], function() {
-                    // Panel opened, show feature view
-                    setTimeout(() => showFeatureView(featureName), 100);
-                }, function() {
-                    // If panel already open, just show feature view
-                    showFeatureView(featureName);
-                });
-            } else {
-                // Fallback: just show feature view
-                showFeatureView(featureName);
-            }
-        } else {
-            console.warn('Unknown button ID:', id);
-        }
-    };
-
-    // Initialize card-based navigation
-    function initCardNavigation() {
-        const featureCards = document.querySelectorAll('.feature-card');
-        featureCards.forEach(card => {
-            card.addEventListener('click', function() {
-                const feature = this.getAttribute('data-feature');
-                if (feature) {
-                    showFeatureView(feature);
-                }
-            });
-        });
-    }
-
-    // Show landing view with card buttons
-    window.showLandingView = function() {
-        const landingView = document.getElementById('main-landing-view');
-        const featureViews = document.getElementById('feature-views');
-        
-        if (landingView) {
-            landingView.style.display = 'flex';
-        }
-        if (featureViews) {
-            featureViews.style.display = 'none';
-        }
-    };
-
-    // Show specific feature view
-    function showFeatureView(featureName) {
-        const landingView = document.getElementById('main-landing-view');
-        const featureViews = document.getElementById('feature-views');
-        const featureView = document.getElementById(featureName + '-view');
-        
-        // Hide landing view
-        if (landingView) {
-            landingView.style.display = 'none';
-        }
-        
-        // Show feature views container
-        if (featureViews) {
-            featureViews.style.display = 'flex';
-        }
-        
-        // Hide all feature views
-        document.querySelectorAll('.feature-view').forEach(view => {
-            view.style.display = 'none';
-        });
-        
-        // Show selected feature view
-        if (featureView) {
-            featureView.style.display = 'flex';
-        }
-    }
-
-    // Legacy function for button handler compatibility
-    function switchTab(tabName) {
-        // Map old tab names to new feature names
-        const featureMap = {
-            'ask-ai': 'ask-ai',
-            'summary': 'summary',
-            'clauses': 'clauses',
-            'obligations': 'obligations',
-            'playbook': 'playbook',
-            'library': 'library',
-            'approval': 'approval'
-        };
-        
-        const featureName = featureMap[tabName] || tabName;
-        showFeatureView(featureName);
-    }
-
     // Initialize OnlyOffice API helpers
     function initOnlyOfficeAPI() {
-        // Get document content as plain text using OnlyOffice plugin API
-        // Note: OnlyOffice plugins can access document content through the editor API
         window.getDocumentContent = function() {
             return new Promise((resolve, reject) => {
                 try {
-                    // Try to get document content using OnlyOffice API
-                    // The actual method depends on OnlyOffice version and API availability
                     if (window.Asc && window.Asc.plugin && window.Asc.plugin.executeMethod) {
-                        // Use executeMethod to get document content
-                        // Note: This is a placeholder - actual implementation depends on OnlyOffice API version
                         window.Asc.plugin.executeMethod("GetDocumentContent", [], function(data) {
                             if (data && data.content) {
-                                // Extract plain text from HTML content if needed
                                 const text = typeof data.content === 'string' 
                                     ? data.content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
                                     : JSON.stringify(data.content);
@@ -288,7 +688,6 @@
                             }
                         }, function(error) {
                             console.warn('GetDocumentContent not available, using fallback:', error);
-                            // Fallback: return empty string if method not available
                             resolve('');
                         });
                     } else {
@@ -302,7 +701,6 @@
             });
         };
 
-        // Get selected text using OnlyOffice plugin API
         window.getSelectedText = function() {
             return new Promise((resolve, reject) => {
                 try {
@@ -327,54 +725,53 @@
             });
         };
 
-        // Get document text - alias for getDocumentContent
         window.getDocumentText = window.getDocumentContent;
     }
 
     // Plugin execution complete callback
     window.Asc.plugin.executeCommand = function(command, data) {
-        // Handle commands from OnlyOffice
         console.log('Command received:', command, data);
     };
 
-    // Handle plugin panel close event - OnlyOffice calls this when close button is clicked
+    // Handle plugin panel close event
     window.Asc.plugin.onClose = function() {
         console.log('Plugin panel close event triggered by OnlyOffice');
-        // OnlyOffice will handle the actual closing automatically
-        // We can do cleanup here if needed
     };
 
     // Function to close/hide the plugin panel programmatically
     window.closePluginPanel = function() {
         console.log('closePluginPanel called');
+        
+        // First, close any open drawer
+        if (window.closeDrawer) {
+            window.closeDrawer();
+        }
+        
+        // Try multiple methods to close the plugin panel
         try {
             if (window.Asc && window.Asc.plugin && window.Asc.plugin.executeMethod) {
-                // Method 1: Try HidePluginPanel (most direct method)
+                // Method 1: HidePluginPanel
                 window.Asc.plugin.executeMethod("HidePluginPanel", [], function() {
                     console.log('Plugin panel closed via HidePluginPanel');
                 }, function(error) {
                     console.warn('HidePluginPanel not available, trying alternative methods:', error);
                     
-                    // Method 2: Try to trigger the close event manually
-                    try {
-                        if (window.Asc && window.Asc.plugin && window.Asc.plugin.onClose) {
-                            console.log('Calling onClose handler');
-                            window.Asc.plugin.onClose();
+                    // Method 2: Try ClosePluginPanel
+                    window.Asc.plugin.executeMethod("ClosePluginPanel", [], function() {
+                        console.log('Plugin panel closed via ClosePluginPanel');
+                    }, function(error2) {
+                        console.warn('ClosePluginPanel not available:', error2);
+                        
+                        // Method 3: Try calling onClose
+                        if (window.Asc.plugin.onClose) {
+                            try {
+                                window.Asc.plugin.onClose();
+                                console.log('Plugin panel closed via onClose');
+                            } catch (e) {
+                                console.error('Error calling onClose:', e);
+                            }
                         }
-                    } catch (e) {
-                        console.warn('Error calling onClose:', e);
-                    }
-                    
-                    // Method 3: Try using resizeWindow to minimize (set width to 0)
-                    try {
-                        window.Asc.plugin.executeMethod("resizeWindow", [0, 0], function() {
-                            console.log('Plugin panel hidden via resizeWindow');
-                        }, function(err) {
-                            console.warn('resizeWindow also failed:', err);
-                        });
-                    } catch (e) {
-                        console.warn('Error with resizeWindow fallback:', e);
-                    }
+                    });
                 });
             } else {
                 console.warn('OnlyOffice plugin API not available');
@@ -386,14 +783,13 @@
 
     // Helper function to get plugin data
     window.getPluginData = function() {
-        // Ensure pluginData exists, if not initialize with defaults
         if (!window.pluginData || Object.keys(window.pluginData).length === 0) {
             window.pluginData = {
                 contractId: '6970839dcf5e285074cf9bfb',
                 accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTYwZDJkZThhNmExYTE3YjBjMzdiZSIsImZ1bGxOYW1lIjoiVmlqYXkgUHJhdGFwIiwiZW1haWwiOiJ2aWpheS5wcmF0YXBAbGVnaXN0aWZ5LmNvbSIsIm9yZ2FuaXphdGlvbklkIjoiNjJhMWEwMWNhYzAwNTk4ODNkYjQwODkxIiwib3JnYW5pemF0aW9uTmFtZSI6IkxvYWQgVGVzdGluZyBPcmciLCJ0eXBlT2ZVc2VyIjoiYWRtaW4iLCJ0eXBlIjoib3JnVXNlciIsImNrRWRpdG9yRW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiY2tFZGl0b3JFbmFibGVkRm9yVXNlciI6dHJ1ZSwiaXNDa0VkaXRvck1hbmFnZXIiOnRydWUsImVTaWduaW5nRW5hYmxlZCI6dHJ1ZSwicXVldWVSZXF1ZXN0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZCI6dHJ1ZSwiYWlDaGF0RW5hYmxlZEZvck9yZ2FuaXphdGlvbiI6dHJ1ZSwiZVNpZ25TZXJ2aWNlIjoibGVlZ2FsaXR5IiwiZVNpZ25PcHRpb25zRW5hYmxlZCI6W10sInN0b3JhZ2VJZCI6IkFXUy00YjVmNzVjZi05ODY2LTRhYjMtODEwMy01MDAzMTI5NTMyZDgiLCJpc1Bob25lTnVtYmVyTWFuZGF0b3J5Ijp0cnVlLCJlbmFibGVTZXRUdXJuIjp0cnVlLCJlbmFibGVTd2l0Y2hXb3Jrc3BhY2UiOnRydWUsImlhdCI6MTc2OTA2NDIxOCwiZXhwIjoxNzY5MTUwNjE4fQ.eW5UKdjToUvB4_cK-iUDJod91CB4RXa4oFyn9k4rHw4',
                 userId: '68e60d2de8a6a1a17b0c37be',
                 organizationId: '62a1a01cac0059883db40891',
-                backendUrl: 'https://contract-frontend-dev.legistrak.com/api',
+                backendUrl: 'https://contract-backend-dev.legistrak.com/api',
                 permissions: {}
             };
         }
@@ -402,52 +798,24 @@
 
     // Helper function to get backend URL
     window.getBackendUrl = function() {
-        const url = window.pluginData?.backendUrl || 'https://contract-frontend-dev.legistrak.com/api';
-        
-        // #region agent log
-        console.log('[DEBUG] getBackendUrl entry:', {rawUrl:url,pluginDataBackendUrl:window.pluginData?.backendUrl});
-        fetch('http://127.0.0.1:7242/ingest/be32d8b0-12c9-4dbe-a212-01f2fe6cfcc2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:323',message:'getBackendUrl entry',data:{rawUrl:url,pluginDataBackendUrl:window.pluginData?.backendUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
-        // Normalize URL: remove trailing slashes
+        const url = window.pluginData?.backendUrl || 'https://contract-backend-dev.legistrak.com/api';
         let normalized = url.trim().replace(/\/+$/, '');
         
-        // #region agent log
-        console.log('[DEBUG] URL after trim:', {normalized:normalized,endsWithApi:normalized.endsWith('/api'),includesApi:normalized.includes('/api/')});
-        fetch('http://127.0.0.1:7242/ingest/be32d8b0-12c9-4dbe-a212-01f2fe6cfcc2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:328',message:'URL after trim',data:{normalized:normalized,endsWithApi:normalized.endsWith('/api'),includesApi:normalized.includes('/api/')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
-        // If URL doesn't end with /api, add it (unless it's already a full API URL)
-        // FIX: Don't add /api if URL already contains /api (either at end or in path)
         if (!normalized.endsWith('/api') && !normalized.includes('/api')) {
             normalized = normalized + '/api';
-            
-            // #region agent log
-            console.log('[DEBUG] Added /api suffix:', {normalized:normalized});
-            fetch('http://127.0.0.1:7242/ingest/be32d8b0-12c9-4dbe-a212-01f2fe6cfcc2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:333',message:'Added /api suffix',data:{normalized:normalized},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
         }
         
-        // Remove any double slashes except after protocol
         normalized = normalized.replace(/([^:]\/)\/+/g, '$1');
-        
-        // #region agent log
-        console.log('[DEBUG] getBackendUrl exit:', {finalUrl:normalized,originalUrl:url});
-        fetch('http://127.0.0.1:7242/ingest/be32d8b0-12c9-4dbe-a212-01f2fe6cfcc2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:339',message:'getBackendUrl exit',data:{finalUrl:normalized,originalUrl:url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
-        console.log('Backend URL:', normalized);
         return normalized;
     };
     
-    // Helper function to get frontend origin for CORS - matches the origin that backend expects
+    // Helper function to get frontend origin for CORS
     window.getFrontendOrigin = function() {
         const backendUrl = window.getBackendUrl();
         let frontendOrigin = 'https://contract-frontend-dev.legistrak.com';
         
         try {
             const backendUrlObj = new URL(backendUrl);
-            // Derive frontend origin from backend URL
             if (backendUrlObj.hostname.includes('contract-backend-dev.legistrak.com')) {
                 frontendOrigin = 'https://contract-frontend-dev.legistrak.com';
             } else if (backendUrlObj.hostname.includes('contract-backend')) {
@@ -486,7 +854,6 @@
             resizeHandle.classList.add('resizing');
             startX = e.clientX;
             
-            // Get current panel width from parent iframe or use default
             const iframe = window.frameElement;
             if (iframe) {
                 startWidth = iframe.offsetWidth;
@@ -504,39 +871,29 @@
         function handleMouseMove(e) {
             if (!isResizing) return;
 
-            const diff = startX - e.clientX; // For left panel, dragging right increases width
-            const newWidth = Math.max(250, Math.min(800, startWidth + diff)); // Min 250px, Max 800px
+            const diff = startX - e.clientX;
+            const newWidth = Math.max(250, Math.min(800, startWidth + diff));
 
-            // Try to resize using OnlyOffice API if available
             if (window.Asc && window.Asc.plugin && window.Asc.plugin.executeMethod) {
                 try {
-                    // OnlyOffice may have a method to resize plugin panel
-                    // This is a placeholder - actual API may vary
                     window.Asc.plugin.executeMethod('SetPluginPanelWidth', [newWidth], function() {
                         console.log('Panel width set to:', newWidth);
                     }, function(error) {
-                        console.warn('SetPluginPanelWidth not available, using CSS fallback:', error);
-                        // Fallback: try to resize via CSS
                         resizeViaCSS(newWidth);
                     });
                 } catch (error) {
-                    console.warn('Error calling OnlyOffice resize API:', error);
                     resizeViaCSS(newWidth);
                 }
             } else {
-                // Fallback: resize via CSS
                 resizeViaCSS(newWidth);
             }
         }
 
         function resizeViaCSS(newWidth) {
-            // Try to resize the iframe or container
             const iframe = window.frameElement;
             if (iframe) {
                 iframe.style.width = newWidth + 'px';
             }
-            
-            // Also try to set on body/document
             document.body.style.minWidth = newWidth + 'px';
             document.body.style.width = newWidth + 'px';
         }
@@ -550,10 +907,18 @@
             }
         }
 
-        // Prevent text selection while resizing
         resizeHandle.addEventListener('selectstart', function(e) {
             e.preventDefault();
         });
     }
+
+    // Expose activeContentData for use by feature modules
+    window.getActiveContentData = function() {
+        return activeContentData;
+    };
+
+    window.setActiveContentData = function(key, value) {
+        activeContentData[key] = value;
+    };
 
 })(window);

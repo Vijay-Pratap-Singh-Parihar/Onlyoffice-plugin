@@ -23,15 +23,132 @@
     }
 
     function initSummary() {
-        const generateBtn = document.getElementById('generate-summary-btn');
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => generateSummary());
-        }
+        // Auto-start generation - no button needed
         
         responseContainerRef = document.getElementById('summary-result');
         
         // Check for existing summary on load
         checkExistingSummary();
+    }
+
+    // Initialize summary view - called when drawer opens
+    window.initSummaryView = async function() {
+        // Find result container - check drawer first (with -drawer suffix), then original view
+        const drawerContent = document.getElementById('drawer-content');
+        let resultContainer = null;
+        
+        if (drawerContent) {
+            // Try with -drawer suffix first (cloned content)
+            resultContainer = drawerContent.querySelector('#summary-result-drawer');
+            // If not found, try without suffix
+            if (!resultContainer) {
+                resultContainer = drawerContent.querySelector('#summary-result');
+            }
+            // Also check nested containers
+            if (!resultContainer) {
+                resultContainer = drawerContent.querySelector('[id*="summary-result"]');
+            }
+        }
+        
+        // Fallback to original view
+        if (!resultContainer) {
+            resultContainer = document.getElementById('summary-result');
+        }
+        
+        if (!resultContainer) {
+            console.warn('Summary result container not found');
+            return;
+        }
+        
+        responseContainerRef = resultContainer;
+
+        // Show progress loader immediately
+        if (window.createProgressLoader) {
+            progressLoaderInstance = window.createProgressLoader(resultContainer, {
+                    title: 'Generating contract summary',
+                    steps: [
+                        'Reading document',
+                        'Identifying main themes',
+                        'Extracting critical information',
+                        'Synthesizing summary'
+                    ],
+                stepDelay: 1000,
+                minDisplayTime: 3000,
+                titleMarginBottom: '1.5rem'
+            });
+        }
+
+        // Check for existing summary and auto-generate if not found
+        await checkExistingSummaryAndGenerate();
+    };
+
+    // Check existing summary and auto-generate if needed
+    async function checkExistingSummaryAndGenerate() {
+        const pluginData = window.getPluginData();
+        const backendUrl = window.getBackendUrl();
+        const accessToken = window.getAccessToken();
+        
+        // Find result container - check drawer first (with -drawer suffix), then original view
+        const drawerContent = document.getElementById('drawer-content');
+        let resultContainer = null;
+        
+        if (drawerContent) {
+            resultContainer = drawerContent.querySelector('#summary-result-drawer') || 
+                             drawerContent.querySelector('#summary-result') ||
+                             drawerContent.querySelector('[id*="summary-result"]');
+        }
+        
+        if (!resultContainer) {
+            resultContainer = document.getElementById('summary-result');
+        }
+        
+        if (!pluginData.contractId || !accessToken || !resultContainer) {
+            initialLoading = false;
+            return;
+        }
+        
+        try {
+            initialLoading = true;
+            const url = `${backendUrl}/ai-assistant/fetch-Summary-Clause?contractId=${pluginData.contractId}`;
+            const response = await fetch(url, {
+                headers: {
+                    'x-auth-token': accessToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.summary) {
+                    savedSummary = data.summary;
+                    summaryData = data.summary;
+                    
+                    // Hide progress loader and show data
+                    if (progressLoaderInstance) {
+                        progressLoaderInstance.hide();
+                        progressLoaderInstance = null;
+                    }
+                    
+                    // Update UI with saved summary
+                    updateStreamingUI();
+                    
+                    // Show action buttons in header
+                    showSummaryActions(resultContainer);
+                } else {
+                    // No saved summary, auto-generate (progress loader already showing)
+                    await generateSummary();
+                }
+            } else {
+                // Error fetching, auto-generate (progress loader already showing)
+                await generateSummary();
+            }
+        } catch (error) {
+            console.error('Error checking existing summary:', error);
+            // Error fetching, auto-generate (progress loader already showing)
+            await generateSummary();
+        } finally {
+            initialLoading = false;
+        }
     }
 
     function sanitizeResponse(raw) {
@@ -61,9 +178,19 @@
         const abortController = new AbortController();
         abortControllerRef = abortController;
 
-        const generateBtn = document.getElementById('generate-summary-btn');
-        const resultContainer = document.getElementById('summary-result');
-        const loadingContainer = document.getElementById('summary-loading');
+        // Find result container - check drawer first (with -drawer suffix), then original view
+        const drawerContent = document.getElementById('drawer-content');
+        let resultContainer = null;
+        
+        if (drawerContent) {
+            resultContainer = drawerContent.querySelector('#summary-result-drawer') || 
+                             drawerContent.querySelector('#summary-result') ||
+                             drawerContent.querySelector('[id*="summary-result"]');
+        }
+        
+        if (!resultContainer) {
+            resultContainer = document.getElementById('summary-result');
+        }
         const pluginData = window.getPluginData();
 
         // Validate plugin data before proceeding
@@ -72,10 +199,6 @@
             console.error(errorMsg);
             if (resultContainer) {
                 resultContainer.innerHTML = `<div class="error-message">${errorMsg}</div>`;
-            }
-            const generateContainer = document.getElementById('summary-generate-container');
-            if (generateContainer) {
-                generateContainer.style.display = 'flex';
             }
             return;
         }
@@ -86,10 +209,6 @@
             console.error(errorMsg);
             if (resultContainer) {
                 resultContainer.innerHTML = `<div class="error-message">${errorMsg}</div>`;
-            }
-            const generateContainer = document.getElementById('summary-generate-container');
-            if (generateContainer) {
-                generateContainer.style.display = 'flex';
             }
             return;
         }
@@ -108,19 +227,15 @@
             isStreaming = true;
         }
 
-        // Hide generate button container
-        const generateContainer = document.getElementById('summary-generate-container');
-        if (generateContainer) {
-            generateContainer.style.display = 'none';
-        }
-        
-        // Clear result container and show progress loader
+        // Clear result container and show progress loader if not already showing
         if (resultContainer) {
-            resultContainer.innerHTML = '';
-            
-            // Show progress loader
-            if (window.createProgressLoader) {
-                progressLoaderInstance = window.createProgressLoader(resultContainer, {
+            // Only clear and show loader if we don't already have one showing
+            if (!progressLoaderInstance) {
+                resultContainer.innerHTML = '';
+                
+                // Show progress loader
+                if (window.createProgressLoader) {
+                    progressLoaderInstance = window.createProgressLoader(resultContainer, {
                     title: 'Generating contract summary',
                     steps: [
                         'Reading document',
@@ -128,10 +243,11 @@
                         'Extracting critical information',
                         'Synthesizing summary'
                     ],
-                    stepDelay: 1000,
-                    minDisplayTime: 3000,
-                    titleMarginBottom: '1.5rem'
-                });
+                        stepDelay: 1000,
+                        minDisplayTime: 3000,
+                        titleMarginBottom: '1.5rem'
+                    });
+                }
             }
         }
 
@@ -346,11 +462,7 @@
                         </div>`;
                 }
                 
-                // Show generate button container again on error
-                const generateContainer = document.getElementById('summary-generate-container');
-                if (generateContainer) {
-                    generateContainer.style.display = 'flex';
-                }
+                // Error already shown in result container
             }
         } finally {
             // Only clear refs if this is still the current request
@@ -373,8 +485,32 @@
     }
 
     function updateStreamingUI() {
-        const resultContainer = document.getElementById('summary-result');
-        if (!resultContainer) return;
+        // Find result container - check drawer first (with -drawer suffix), then original view
+        const drawerContent = document.getElementById('drawer-content');
+        let resultContainer = null;
+        
+        if (drawerContent) {
+            // Try with -drawer suffix first (cloned content)
+            resultContainer = drawerContent.querySelector('#summary-result-drawer');
+            // If not found, try without suffix
+            if (!resultContainer) {
+                resultContainer = drawerContent.querySelector('#summary-result');
+            }
+            // Also check nested containers
+            if (!resultContainer) {
+                resultContainer = drawerContent.querySelector('[id*="summary-result"]');
+            }
+        }
+        
+        // Fallback to original view
+        if (!resultContainer) {
+            resultContainer = document.getElementById('summary-result');
+        }
+        
+        if (!resultContainer) {
+            console.warn('Summary result container not found');
+            return;
+        }
 
         // Hide progress loader if we have chunks
         if (responseChunks.length > 0 && progressLoaderInstance) {
@@ -388,7 +524,7 @@
         if (!displayData && (isStreaming || regenerateLoader)) {
             // Show progress loader if still loading and no data
             if (!progressLoaderInstance && window.createProgressLoader) {
-                progressLoaderInstance = window.createProgressLoader(resultContainer, {
+                    progressLoaderInstance = window.createProgressLoader(resultContainer, {
                     title: 'Generating contract summary',
                     steps: [
                         'Reading document',
@@ -396,9 +532,9 @@
                         'Extracting critical information',
                         'Synthesizing summary'
                     ],
-                    stepDelay: 1000,
-                    minDisplayTime: 3000
-                });
+                        stepDelay: 1000,
+                        minDisplayTime: 3000
+                    });
             }
             return;
         }
@@ -434,7 +570,6 @@
         const backendUrl = window.getBackendUrl();
         const accessToken = window.getAccessToken();
         const resultContainer = document.getElementById('summary-result');
-        const generateBtn = document.getElementById('generate-summary-btn');
         
         if (!pluginData.contractId || !accessToken || !resultContainer) {
             initialLoading = false;
@@ -460,13 +595,7 @@
                     // Update UI with saved summary
                     updateStreamingUI();
                     
-                    // Hide generate button container
-                    const generateContainer = document.getElementById('summary-generate-container');
-                    if (generateContainer) {
-                        generateContainer.style.display = 'none';
-                    }
-                    
-                    // Show action box
+                    // Show action buttons in header
                     showSummaryActions(resultContainer);
                 } else {
                     // No saved summary, could start streaming if needed
@@ -481,16 +610,10 @@
     }
 
     function showSummaryActions(container) {
-        // Show action box in header (matches MS Editor)
-        const actionBox = document.getElementById('summary-action-box');
-        if (actionBox) {
-            actionBox.style.display = 'flex';
-        }
-        
-        // Hide generate button container
-        const generateContainer = document.getElementById('summary-generate-container');
-        if (generateContainer) {
-            generateContainer.style.display = 'none';
+        // Show action buttons in drawer header (matches MS Editor)
+        const drawerHeaderActions = document.getElementById('drawer-header-actions');
+        if (drawerHeaderActions) {
+            drawerHeaderActions.style.display = 'flex';
         }
     }
 
